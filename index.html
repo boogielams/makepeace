@@ -303,14 +303,14 @@
     .strike-panel {
       width: 100%;
       max-height: calc(100vh - 180px);
-      overflow: hidden;
+      overflow: visible;
       opacity: 0.9;
     }
 
     .hud-panel .panel-scroll {
-      max-height: 320px;
-      overflow: auto;
-      padding-right: 6px;
+      max-height: none;
+      overflow: visible;
+      padding-right: 0;
     }
 
     .impact-panel .panel,
@@ -347,6 +347,21 @@
 
     .impact-assets {
       flex: 1 1 auto;
+    }
+
+    .directory-list {
+      max-height: 360px;
+      overflow: auto;
+      padding-right: 6px;
+    }
+
+    .strike-history {
+      margin-top: 12px;
+      padding-right: 0;
+    }
+
+    .strike-history .strike-item {
+      padding: 10px 12px;
     }
 
     .hud-readouts strong {
@@ -678,6 +693,37 @@
       0% { transform: translate(-50%, -50%) scale(1); }
       40% { transform: translate(-50%, -50%) scale(1.08); }
       100% { transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .rocket-shot {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #f59e0b;
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.9), 0 0 28px rgba(245, 158, 11, 0.6);
+      transform: translate(-50%, -50%);
+      animation: rocketFly 0.6s ease-out forwards;
+      pointer-events: none;
+      z-index: 7;
+    }
+
+    .rocket-shot::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 2px;
+      height: 26px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(245, 158, 11, 0));
+      transform: translate(-50%, -50%) rotate(var(--angle)) translateX(-12px);
+      filter: blur(0.4px);
+      opacity: 0.9;
+    }
+
+    @keyframes rocketFly {
+      from { transform: translate(-50%, -50%); opacity: 1; }
+      to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); opacity: 0.15; }
     }
 
     .map-shell::after {
@@ -1084,9 +1130,10 @@
             <datalist id="directoryOptions"></datalist>
             <button id="directoryAdd">Apply</button>
           </div>
-          <div class="panel-scroll">
-            <div class="directory-list" id="directoryList"></div>
-          </div>
+          <div class="directory-list" id="directoryList"></div>
+
+          <div class="hud-label" style="margin-top: 14px;">Strike History</div>
+          <div class="strike-history" id="strikeHistory"></div>
         </aside>
       </div>
 
@@ -1608,21 +1655,23 @@
     }
 
     function renderQueue() {
-      const queue = document.getElementById("strikeQueue");
+      const queue = document.getElementById("strikeHistory");
       if (!queue) return;
       if (state.stack.length === 0) {
-        queue.innerHTML = `<p class="note">No strikes queued. Select from the map or directory.</p>`;
+        queue.innerHTML = `<p class="note">No strikes yet. Lock and fire to log history.</p>`;
         return;
       }
 
-      queue.innerHTML = state.stack.map((id, index) => {
+      const recent = state.stack.slice(-4);
+      queue.innerHTML = recent.map((id, index) => {
+        const actualIndex = state.stack.length - recent.length + index;
         const event = SITES.find((loc) => loc.id === id);
-        const log = state.impactLog[index];
+        const log = state.impactLog[actualIndex];
         const multiplier = log ? log.multiplier : 1;
         const damage = log ? log.damage : 100;
         const strikeCount = log ? log.strike : 1;
         return `
-          <div class="strike-item" data-id="${id}" data-index="${index}">
+          <div class="strike-item" data-id="${id}" data-index="${actualIndex}">
             <div>
               <strong>${event.name}</strong>
               <span>Impact ${Math.round(multiplier * 100)}% · Damage ${damage}% · Strike ${strikeCount}</span>
@@ -1796,6 +1845,7 @@
       const site = SITES.find((loc) => loc.id === id);
       if (site && mapReady) {
         if (options.explodeAt) {
+          if (options.pixel) fireRocket(options.pixel);
           dropPeteMarker(options.explodeAt, options.pixel);
           createExplosion(options.explodeAt, options.pixel);
         } else {
@@ -1812,6 +1862,7 @@
           const rect = layer.getBoundingClientRect();
           const x = options.pixel ? options.pixel.x : rect.width * 0.5;
           const y = options.pixel ? options.pixel.y : rect.height * 0.5;
+          fireRocket({ x, y });
           dropPeteMarker({ lng: site.lng, lat: site.lat }, { x, y });
           createExplosion({ lng: site.lng, lat: site.lat }, { x, y });
         }
@@ -2087,6 +2138,26 @@
       if (!mapReady || !map) return;
       const point = map.project(lngLat);
       createExplosionAtPixel(point.x, point.y);
+    }
+
+    function fireRocket(target) {
+      const layer = document.getElementById("mapEffects");
+      if (!layer) return;
+      const rect = layer.getBoundingClientRect();
+      const origin = { x: rect.width * 0.5, y: rect.height - 60 };
+      const dx = target.x - origin.x;
+      const dy = target.y - origin.y;
+      const angle = Math.atan2(dy, dx);
+
+      const el = document.createElement("div");
+      el.className = "rocket-shot";
+      el.style.left = `${origin.x}px`;
+      el.style.top = `${origin.y}px`;
+      el.style.setProperty("--dx", `${dx}px`);
+      el.style.setProperty("--dy", `${dy}px`);
+      el.style.setProperty("--angle", `${angle}rad`);
+      layer.appendChild(el);
+      setTimeout(() => el.remove(), 700);
     }
 
     function getReticlePoint() {
