@@ -414,6 +414,13 @@
       pointer-events: none;
     }
 
+    .map-effects {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 6;
+    }
+
     .map-shell::after {
       content: "";
       position: absolute;
@@ -761,6 +768,8 @@
 
     
     .pete-marker {
+      position: absolute;
+      transform: translate(-50%, -50%);
       width: 36px;
       height: 36px;
       border-radius: 50%;
@@ -866,6 +875,7 @@
           <div class="map-shell">
             <div id="map"></div>
             <div class="map-overlay"></div>
+            <div class="map-effects" id="mapEffects"></div>
           </div>
         </div>
 
@@ -1251,6 +1261,7 @@
         assets: [...template, ...overrides]
       };
     });
+    const DEFAULT_SITE = "hormuz";
 
     function getHorizonMultiplier() {
       return HORIZONS.find((h) => h.id === state.horizon).multiplier;
@@ -1589,8 +1600,8 @@
       const site = SITES.find((loc) => loc.id === id);
       if (site && mapReady) {
         if (options.explodeAt) {
-          dropPeteMarker(options.explodeAt);
-          createExplosion(options.explodeAt);
+          dropPeteMarker(options.explodeAt, options.pixel);
+          createExplosion(options.explodeAt, options.pixel);
         } else {
           map.flyTo({ center: [site.lng, site.lat], zoom: Math.max(map.getZoom(), 4.2), speed: 0.6 });
           map.once("moveend", () => {
@@ -1598,6 +1609,15 @@
             dropPeteMarker(coords);
             createExplosion(coords);
           });
+        }
+      } else if (site) {
+        const layer = document.getElementById("mapEffects");
+        if (layer) {
+          const rect = layer.getBoundingClientRect();
+          const x = options.pixel ? options.pixel.x : rect.width * 0.5;
+          const y = options.pixel ? options.pixel.y : rect.height * 0.5;
+          dropPeteMarker({ lng: site.lng, lat: site.lat }, { x, y });
+          createExplosion({ lng: site.lng, lat: site.lat }, { x, y });
         }
       }
       recalculate();
@@ -1632,9 +1652,44 @@
       renderAll();
     });
 
+    document.getElementById("map").addEventListener("click", (event) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      const point = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      lastClickPixel = point;
+      if (mapReady && map) {
+        const features = map.queryRenderedFeatures([point.x, point.y], { layers: ["strike-points"] });
+        if (features && features.length) {
+          const id = features[0].properties?.id;
+          if (id) {
+            const lngLat = map.unproject([point.x, point.y]);
+            applyStrike(id, { explodeAt: lngLat, pixel: point });
+            return;
+          }
+        }
+        let best = null;
+        let bestDist = Infinity;
+        SITES.forEach((site) => {
+          const proj = map.project([site.lng, site.lat]);
+          const dx = proj.x - point.x;
+          const dy = proj.y - point.y;
+          const dist = dx * dx + dy * dy;
+          if (dist < bestDist) {
+            bestDist = dist;
+            best = site;
+          }
+        });
+        if (best) {
+          const lngLat = map.unproject([point.x, point.y]);
+          applyStrike(best.id, { explodeAt: lngLat, pixel: point });
+          return;
+        }
+      }
+      applyStrike(DEFAULT_SITE, { pixel: point });
+    });
+
     let map = null;
     let mapReady = false;
-    const peteMarkers = [];
+    let lastClickPixel = null;
 
     async function initMap() {
       try {
@@ -1708,28 +1763,38 @@
         });
         map.on("click", "strike-points", (e) => {
           const id = e.features?.[0]?.properties?.id;
-          if (id) applyStrike(id, { explodeAt: e.lngLat });
+          if (id) applyStrike(id, { explodeAt: e.lngLat, pixel: e.point });
         });
       });
     }
 
-    function dropPeteMarker(lngLat) {
-      if (!mapReady || !map) return;
+    function spawnPeteAtPixel(x, y) {
+      const layer = document.getElementById("mapEffects");
+      if (!layer) return;
       const el = document.createElement("div");
       el.className = "pete-marker";
       const img = document.createElement("img");
       img.src = PETE_DATA_URL;
       img.alt = "Pete";
       el.appendChild(img);
-      const marker = new mapboxgl.Marker({ element: el, anchor: "center" })
-        .setLngLat(lngLat)
-        .addTo(map);
-      peteMarkers.push(marker);
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      layer.appendChild(el);
     }
 
-    function createExplosion(lngLat) {
+    function dropPeteMarker(lngLat, pixel) {
+      if (pixel) {
+        spawnPeteAtPixel(pixel.x, pixel.y);
+        return;
+      }
       if (!mapReady || !map) return;
       const point = map.project(lngLat);
+      spawnPeteAtPixel(point.x, point.y);
+    }
+
+    function createExplosionAtPixel(x, y) {
+      const layer = document.getElementById("mapEffects");
+      if (!layer) return;
       const el = document.createElement("div");
       el.className = "explosion";
       el.innerHTML = `
@@ -1744,11 +1809,21 @@
         <span class="spark" style="--angle:300deg"></span>
       `;
       el.style.position = "absolute";
-      el.style.left = `${point.x}px`;
-      el.style.top = `${point.y}px`;
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
       el.style.transform = "translate(-50%, -50%)";
-      map.getCanvasContainer().appendChild(el);
+      layer.appendChild(el);
       setTimeout(() => el.remove(), 1200);
+    }
+
+    function createExplosion(lngLat, pixel) {
+      if (pixel) {
+        createExplosionAtPixel(pixel.x, pixel.y);
+        return;
+      }
+      if (!mapReady || !map) return;
+      const point = map.project(lngLat);
+      createExplosionAtPixel(point.x, point.y);
     }
 
     function syncSubtitleWidth() {
