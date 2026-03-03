@@ -77,16 +77,6 @@
       min-height: 100vh;
     }
 
-    header {
-      padding: 20px 28px 12px;
-      border-bottom: 1px solid var(--stroke);
-      background: linear-gradient(90deg, rgba(37, 99, 235, 0.18), transparent 65%);
-      position: sticky;
-      top: 0;
-      z-index: 5;
-      backdrop-filter: blur(6px);
-    }
-
     .header-top {
       display: flex;
       align-items: center;
@@ -214,8 +204,10 @@
 
     .layout {
       position: relative;
-      padding: 22px 28px 160px;
-      min-height: 78vh;
+      flex: 1;
+      padding: 0;
+      overflow: hidden;
+      height: 100vh;
     }
 
     .panel {
@@ -288,9 +280,10 @@
     .hud-panel {
       position: absolute;
       z-index: 5;
-      width: min(320px, 35vw);
-      max-height: calc(100vh - 240px);
+      width: min(260px, 26vw);
+      max-height: calc(100vh - 220px);
       overflow: hidden;
+      opacity: 0.92;
     }
 
     .hud-panel .panel-scroll {
@@ -301,26 +294,43 @@
 
     .impact-panel .panel {
       width: 100%;
+      background: rgba(10, 12, 18, 0.78);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+      padding: 14px 14px 16px;
+    }
+
+    .impact-panel .panel::before {
+      opacity: 0.35;
+    }
+
+    .impact-panel .panel::after {
+      opacity: 0.55;
     }
 
     .hud-left {
-      top: 200px;
-      left: 32px;
+      top: 120px;
+      left: 24px;
     }
 
     .hud-right {
-      top: 200px;
-      right: 32px;
-      width: min(360px, 36vw);
+      top: 120px;
+      right: 24px;
+      width: min(300px, 28vw);
     }
 
     .strike-panel {
       position: absolute;
-      left: 50%;
-      bottom: 24px;
-      transform: translateX(-50%);
-      width: min(720px, 80vw);
+      left: 24px;
+      top: 420px;
+      width: 260px;
+      height: 260px;
       z-index: 4;
+      opacity: 0.92;
+    }
+
+    .strike-panel .strike-queue {
+      max-height: 140px;
     }
 
     .hud-label {
@@ -328,6 +338,46 @@
       letter-spacing: 0.24em;
       text-transform: uppercase;
       color: var(--ink-dim);
+    }
+
+    .hud-panel.panel,
+    .strike-panel.panel {
+      background: rgba(10, 12, 18, 0.78);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+      padding: 14px 14px 16px;
+    }
+
+    .hud-panel.panel::before,
+    .strike-panel.panel::before {
+      opacity: 0.35;
+    }
+
+    .hud-panel.panel::after,
+    .strike-panel.panel::after {
+      opacity: 0.55;
+    }
+
+    .title-block {
+      position: fixed;
+      left: 24px;
+      bottom: 20px;
+      z-index: 6;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      font-family: "Oxanium", sans-serif;
+      font-size: 12px;
+      color: #d7e7ff;
+      text-shadow: 0 0 18px rgba(37, 99, 235, 0.4);
+      opacity: 0.9;
+    }
+
+    .title-block span {
+      display: block;
+      margin-top: 6px;
+      font-size: 10px;
+      color: var(--ink-dim);
+      letter-spacing: 0.26em;
     }
 
 .panel h2 {
@@ -429,25 +479,35 @@
     }
 
     .map-panel {
-      position: relative;
+      position: absolute;
+      inset: 0;
+      z-index: 1;
     }
 
     .map-frame {
-      padding: 22px 22px 18px;
+      padding: 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      height: 100%;
+    }
+
+    .map-frame::before,
+    .map-frame::after {
+      content: none;
     }
 
     .map-shell {
       position: relative;
-      border-radius: 14px;
-      border: 2px solid rgba(148, 163, 184, 0.5);
+      width: 100%;
+      height: 100%;
       overflow: hidden;
-      box-shadow: var(--shadow);
       background: #05070d;
     }
 
     #map {
       width: 100%;
-      height: 640px;
+      height: 100%;
       filter: saturate(0.85) contrast(1.15) brightness(0.9);
     }
 
@@ -864,21 +924,23 @@
     }
 
 @media (max-width: 1100px) {
-      .layout {
-        padding: 16px;
-      }
-
       .hud-panel,
       .strike-panel {
         position: static;
         width: 100%;
         max-height: none;
         transform: none;
-        margin-bottom: 16px;
+        margin: 0 16px 16px;
+      }
+
+      .hud-left,
+      .hud-right {
+        width: calc(100% - 32px);
       }
 
       .map-panel {
-        margin-bottom: 16px;
+        position: static;
+        height: auto;
       }
 
       #map {
@@ -889,25 +951,6 @@
 </head>
 <body>
   <div class="app">
-    <header>
-      <div class="header-top">
-        <div class="brand">
-          <h1>Monitoring the Situation</h1>
-          <p class="subtitle">and making it worse</p>
-          <div class="subline">Understand how moves impact price</div>
-        </div>
-        <div class="header-right">
-          <div class="command-badges">
-            <div class="badge">Live Simulation</div>
-            <div class="badge">Strike Stack Active</div>
-            <div class="badge alert">Signal: Elevated</div>
-          </div>
-          <div class="sim-note">Directional simulation based on historical analogs. Not a forecast.</div>
-        </div>
-      </div>
-      <div class="status-tape" id="statusBar"></div>
-    </header>
-
     <main class="layout">
       <aside class="panel hud-panel hud-left" id="directoryPanel" data-state="idle">
         <h2>Flight Regions (60 Sites)</h2>
@@ -924,8 +967,6 @@
 
       <section class="map-panel">
         <div class="panel map-frame" data-state="active">
-          <h2>Gulf Theater Flight Cam</h2>
-          <p class="note">WASD to fly · Q/E yaw · Scroll to zoom · Click to strike. Each hit updates the market stack.</p>
           <div class="map-shell">
             <div id="map"></div>
             <div class="map-overlay"></div>
@@ -933,17 +974,16 @@
             <div class="crosshair"></div>
           </div>
         </div>
-
-        <div class="panel strike-panel" data-state="off">
-          <h2>Strike Queue</h2>
-          <p class="note">Sequential strikes reprice the tape. Earlier shocks carry more weight than late additions.</p>
-          <div class="strike-queue" id="strikeQueue"></div>
-          <div class="strike-actions">
-            <button id="undoStrike">Undo Last</button>
-            <button id="resetStrike" class="primary">Reset Queue</button>
-          </div>
-        </div>
       </section>
+
+      <div class="panel strike-panel" data-state="off">
+        <h2>Strike Queue</h2>
+        <div class="strike-queue" id="strikeQueue"></div>
+        <div class="strike-actions">
+          <button id="undoStrike">Undo Last</button>
+          <button id="resetStrike" class="primary">Reset Queue</button>
+        </div>
+      </div>
 
       <aside class="impact-panel hud-panel hud-right">
         <div class="panel" data-state="idle">
@@ -970,6 +1010,10 @@
       </aside>
     </main>
     <div class="console-rail"></div>
+    <div class="title-block">
+      Monitoring the Situation
+      <span>and making it worse</span>
+    </div>
 
     <footer>
       Scenario projections are illustrative estimates based on historical parallels and current market data, not financial advice. Leverage amplifies gains AND losses. Past market reactions to geopolitical events don't guarantee future outcomes.
@@ -995,6 +1039,16 @@
       { label: "VIX", value: "21.44 (+7.96%)" },
       { label: "S&P 500", value: "6,882 (+0.04%)" }
     ];
+
+    const statusBar = document.getElementById("statusBar");
+    if (statusBar) {
+      statusBar.innerHTML = STATUS.map((item) => `
+        <div class="status-card">
+          <span>${item.label}</span>
+          <strong>${item.value}</strong>
+        </div>
+      `).join("");
+    }
 
     const ASSETS = {
       brent: { symbol: "BNO", name: "Brent Oil ETF", class: "Commodity", baseline: "Brent proxy" },
@@ -1269,14 +1323,6 @@
       assets: {},
       impactLog: []
     };
-
-    const statusBar = document.getElementById("statusBar");
-    statusBar.innerHTML = STATUS.map((item) => `
-      <div class="status-card">
-        <span>${item.label}</span>
-        <strong>${item.value}</strong>
-      </div>
-    `).join("");
 
     const directoryList = document.getElementById("directoryList");
     document.getElementById("directoryOptions").innerHTML = SITE_BASE.map((loc) => `<option value="${loc.name}"></option>`).join("");
@@ -1737,9 +1783,12 @@
         container: "map",
         style: "mapbox://styles/mapbox/satellite-streets-v12",
         center: [48.0, 26.5],
-        zoom: 3.7,
-        bearing: -6,
-        pitch: 35
+        zoom: 4.2,
+        bearing: -12,
+        pitch: 60,
+        minZoom: 3,
+        maxZoom: 9,
+        maxPitch: 75
       });
 
       map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "top-right");
