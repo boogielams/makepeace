@@ -426,8 +426,8 @@
       right: 24px;
       bottom: 18px;
       display: grid;
-      grid-template-columns: repeat(3, auto);
-      gap: 10px;
+      grid-template-columns: repeat(2, auto);
+      gap: 12px;
       padding: 8px 12px;
       border-radius: 10px;
       background: rgba(8, 12, 18, 0.5);
@@ -993,10 +993,7 @@
     }
 
     footer {
-      padding: 10px 28px 120px;
-      color: var(--ink-dim);
-      font-size: 11px;
-      line-height: 1.6;
+      display: none;
     }
 
     .console-rail {
@@ -1130,7 +1127,6 @@
       <span class="tick">E</span>
     </div>
     <div class="hud-readouts">
-      <div><span>SPD</span><strong id="hudSpeed">000</strong></div>
       <div><span>ALT</span><strong id="hudAlt">0000</strong></div>
       <div><span>PIT</span><strong id="hudPitch">00°</strong></div>
     </div>
@@ -1140,10 +1136,6 @@
       Monitoring the Situation
       <span>and making it worse</span>
     </div>
-
-    <footer>
-      Scenario projections are illustrative estimates based on historical parallels and current market data, not financial advice. Leverage amplifies gains AND losses. Past market reactions to geopolitical events don't guarantee future outcomes.
-    </footer>
 
   </div>
 
@@ -1878,7 +1870,6 @@
     const peteMarkers = [];
     const crosshair = document.querySelector(".crosshair");
     const hudHeading = document.getElementById("hudHeading");
-    const hudSpeed = document.getElementById("hudSpeed");
     const hudAlt = document.getElementById("hudAlt");
     const hudPitch = document.getElementById("hudPitch");
     const hudThrottle = document.getElementById("hudThrottle");
@@ -2134,13 +2125,11 @@
       const pitch = map.getPitch();
       const zoom = map.getZoom();
       const altitude = Math.max(120, Math.round(16000 / Math.pow(2, zoom - 3)));
-      const speed = flightKeys.size > 0 ? (flightKeys.has("shift") ? 780 : 420) : 0;
       const throttle = flightKeys.size > 0 ? (flightKeys.has("shift") ? 85 : 55) : 20;
 
       if (hudHeading) hudHeading.textContent = String(Math.round(heading)).padStart(3, "0");
       if (hudAlt) hudAlt.textContent = altitude.toLocaleString();
       if (hudPitch) hudPitch.textContent = `${Math.round(pitch)}°`;
-      if (hudSpeed) hudSpeed.textContent = String(speed).padStart(3, "0");
       if (hudThrottle) hudThrottle.style.setProperty("--throttle", `${throttle}%`);
     }
 
