@@ -759,7 +759,64 @@
       opacity: 0.8;
     }
 
-    @media (max-width: 1100px) {
+    
+    .pete-marker {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.2);
+      border: 2px solid rgba(255,255,255,0.4);
+      box-shadow: 0 0 16px rgba(37, 99, 235, 0.6);
+      overflow: hidden;
+    }
+
+    .pete-marker img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .trump-overlay {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(10, 10, 15, 0.9);
+      border: 1px solid rgba(255, 120, 120, 0.6);
+      border-radius: 16px;
+      padding: 12px 16px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.6);
+      z-index: 50;
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .trump-overlay.active {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .trump-overlay img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 10px rgba(255, 140, 140, 0.6));
+    }
+
+    .trump-overlay .caption {
+      font-family: "Oxanium", sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #ffb4b4;
+    }
+
+@media (max-width: 1100px) {
       .layout {
         grid-template-columns: 1fr;
       }
@@ -1487,6 +1544,15 @@
       `;
     }
 
+    function updateDaddyMad() {
+      const overlay = document.getElementById("trumpOverlay");
+      const spxMove = state.assets.spx || 0;
+      const vixMove = state.assets.vix || 0;
+      const mad = spxMove <= -1 || vixMove >= 2;
+      if (!overlay) return;
+      overlay.classList.toggle("active", mad);
+    }
+
     function renderAll() {
       renderDirectory();
       renderQueue();
@@ -1494,6 +1560,7 @@
       renderAssets();
       renderBaskets();
       renderStrikeBrief();
+      updateDaddyMad();
     }
 
     function applyStrike(id, options = {}) {
@@ -1505,6 +1572,7 @@
       const site = SITES.find((loc) => loc.id === id);
       if (site && mapReady) {
         if (options.explodeAt) {
+          dropPeteMarker(options.explodeAt);
           createExplosion(options.explodeAt);
         } else {
           map.flyTo({ center: [site.lng, site.lat], zoom: Math.max(map.getZoom(), 4.2), speed: 0.6 });
@@ -1545,6 +1613,7 @@
 
     let map = null;
     let mapReady = false;
+    const peteMarkers = [];
 
     async function initMap() {
       try {
@@ -1621,6 +1690,20 @@
           if (id) applyStrike(id, { explodeAt: e.lngLat });
         });
       });
+    }
+
+    function dropPeteMarker(lngLat) {
+      if (!mapReady || !map) return;
+      const el = document.createElement("div");
+      el.className = "pete-marker";
+      const img = document.createElement("img");
+      img.src = "/assets/pete.png";
+      img.alt = "Pete";
+      el.appendChild(img);
+      const marker = new mapboxgl.Marker({ element: el, anchor: "center" })
+        .setLngLat(lngLat)
+        .addTo(map);
+      peteMarkers.push(marker);
     }
 
     function createExplosion(lngLat) {
