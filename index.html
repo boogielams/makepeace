@@ -277,60 +277,62 @@
       z-index: 2;
     }
 
-    .hud-panel {
+    .hud-dock {
       position: absolute;
+      top: 120px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 260px;
       z-index: 5;
-      width: min(260px, 26vw);
+    }
+
+    .hud-dock.right {
+      right: 24px;
+      width: 280px;
+    }
+
+    .hud-dock.left {
+      left: 24px;
+    }
+
+    .hud-panel,
+    .strike-panel {
+      width: 100%;
       max-height: calc(100vh - 220px);
       overflow: hidden;
-      opacity: 0.92;
+      opacity: 0.9;
     }
 
     .hud-panel .panel-scroll {
-      max-height: calc(100vh - 320px);
+      max-height: 280px;
       overflow: auto;
       padding-right: 6px;
     }
 
-    .impact-panel .panel {
-      width: 100%;
+    .strike-panel .strike-queue {
+      max-height: 140px;
+    }
+
+    .impact-panel .panel,
+    .hud-panel.panel,
+    .strike-panel.panel {
       background: rgba(10, 12, 18, 0.78);
       border: 1px solid rgba(148, 163, 184, 0.25);
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
       padding: 14px 14px 16px;
     }
 
-    .impact-panel .panel::before {
+    .impact-panel .panel::before,
+    .hud-panel.panel::before,
+    .strike-panel.panel::before {
       opacity: 0.35;
     }
 
-    .impact-panel .panel::after {
+    .impact-panel .panel::after,
+    .hud-panel.panel::after,
+    .strike-panel.panel::after {
       opacity: 0.55;
-    }
-
-    .hud-left {
-      top: 120px;
-      left: 24px;
-    }
-
-    .hud-right {
-      top: 120px;
-      right: 24px;
-      width: min(300px, 28vw);
-    }
-
-    .strike-panel {
-      position: absolute;
-      left: 24px;
-      top: 420px;
-      width: 260px;
-      height: 260px;
-      z-index: 4;
-      opacity: 0.92;
-    }
-
-    .strike-panel .strike-queue {
-      max-height: 140px;
     }
 
     .hud-label {
@@ -924,18 +926,11 @@
     }
 
 @media (max-width: 1100px) {
-      .hud-panel,
-      .strike-panel {
+      .hud-dock {
         position: static;
         width: 100%;
         max-height: none;
-        transform: none;
-        margin: 0 16px 16px;
-      }
-
-      .hud-left,
-      .hud-right {
-        width: calc(100% - 32px);
+        margin: 16px;
       }
 
       .map-panel {
@@ -952,19 +947,6 @@
 <body>
   <div class="app">
     <main class="layout">
-      <aside class="panel hud-panel hud-left" id="directoryPanel" data-state="idle">
-        <h2>Flight Regions (60 Sites)</h2>
-        <p class="note">Choose a zone, then click the map to strike. WASD to fly, Q/E to yaw.</p>
-        <div class="directory-search">
-          <input id="directorySearch" list="directoryOptions" placeholder="Search site" />
-          <datalist id="directoryOptions"></datalist>
-          <button id="directoryAdd">Apply</button>
-        </div>
-        <div class="panel-scroll">
-          <div class="directory-list" id="directoryList"></div>
-        </div>
-      </aside>
-
       <section class="map-panel">
         <div class="panel map-frame" data-state="active">
           <div class="map-shell">
@@ -976,40 +958,56 @@
         </div>
       </section>
 
-      <div class="panel strike-panel" data-state="off">
-        <h2>Strike Queue</h2>
-        <div class="strike-queue" id="strikeQueue"></div>
-        <div class="strike-actions">
-          <button id="undoStrike">Undo Last</button>
-          <button id="resetStrike" class="primary">Reset Queue</button>
+      <div class="hud-dock left">
+        <aside class="panel hud-panel" id="directoryPanel" data-state="idle">
+          <h2>Flight Regions</h2>
+          <p class="note">WASD to fly · Q/E yaw · Click to strike.</p>
+          <div class="directory-search">
+            <input id="directorySearch" list="directoryOptions" placeholder="Search site" />
+            <datalist id="directoryOptions"></datalist>
+            <button id="directoryAdd">Apply</button>
+          </div>
+          <div class="panel-scroll">
+            <div class="directory-list" id="directoryList"></div>
+          </div>
+        </aside>
+
+        <div class="panel strike-panel" data-state="off">
+          <h2>Strike Queue</h2>
+          <div class="strike-queue" id="strikeQueue"></div>
+          <div class="strike-actions">
+            <button id="undoStrike">Undo Last</button>
+            <button id="resetStrike" class="primary">Reset Queue</button>
+          </div>
         </div>
       </div>
 
-      <aside class="impact-panel hud-panel hud-right">
-        <div class="panel" data-state="idle">
-          <h2>Impact Console</h2>
-          <p class="note">Live market response based on the active strike stack.</p>
-          <div class="panel-scroll">
-            <div class="hud-label">Time Horizon</div>
-            <div class="horizon-toggle" id="horizonToggle"></div>
+      <div class="hud-dock right">
+        <aside class="impact-panel hud-panel">
+          <div class="panel" data-state="idle">
+            <h2>Impact Console</h2>
+            <p class="note">Live market response based on the active strike stack.</p>
+            <div class="panel-scroll">
+              <div class="hud-label">Time Horizon</div>
+              <div class="horizon-toggle" id="horizonToggle"></div>
 
-            <div class="hud-label" style="margin-top: 14px;">Aggregate Scorecard</div>
-            <div class="impact-grid" id="impactGrid"></div>
-            <p class="impact-note" id="impactNote"></p>
+              <div class="hud-label" style="margin-top: 14px;">Aggregate Scorecard</div>
+              <div class="impact-grid" id="impactGrid"></div>
+              <p class="impact-note" id="impactNote"></p>
 
-            <div class="hud-label" style="margin-top: 14px;">Top Impacted Assets</div>
-            <div class="asset-list" id="assetList"></div>
+              <div class="hud-label" style="margin-top: 14px;">Top Impacted Assets</div>
+              <div class="asset-list" id="assetList"></div>
 
-            <div class="hud-label" style="margin-top: 14px;">Sector Baskets</div>
-            <div class="asset-list" id="basketList"></div>
+              <div class="hud-label" style="margin-top: 14px;">Sector Baskets</div>
+              <div class="asset-list" id="basketList"></div>
 
-            <div class="hud-label" style="margin-top: 14px;">Selected Strike Brief</div>
-            <div id="strikeBrief"></div>
+              <div class="hud-label" style="margin-top: 14px;">Selected Strike Brief</div>
+              <div id="strikeBrief"></div>
+            </div>
           </div>
-        </div>
-      </aside>
+        </aside>
+      </div>
     </main>
-    <div class="console-rail"></div>
     <div class="title-block">
       Monitoring the Situation
       <span>and making it worse</span>
