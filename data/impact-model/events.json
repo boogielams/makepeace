@@ -1,0 +1,34 @@
+[
+  {
+    "id": "abqaiq_2019",
+    "name": "Abqaiq/Khurais Drone Attack",
+    "date": "2019-09-14",
+    "category": "refinery",
+    "window": {"pre_days": 1, "post_days": 5},
+    "tickers": ["BNO", "USO", "XLE", "XOP", "OIH", "GLD", "SPY", "VIXY"]
+  },
+  {
+    "id": "tanker_2019",
+    "name": "Gulf of Oman Tanker Attacks",
+    "date": "2019-06-13",
+    "category": "chokepoint",
+    "window": {"pre_days": 1, "post_days": 4},
+    "tickers": ["BNO", "USO", "XLE", "XOP", "JETS", "SPY", "VIXY"]
+  },
+  {
+    "id": "soleimani_2020",
+    "name": "Soleimani Strike",
+    "date": "2020-01-03",
+    "category": "base",
+    "window": {"pre_days": 1, "post_days": 4},
+    "tickers": ["BNO", "USO", "GLD", "SPY", "VIXY", "ITA"]
+  },
+  {
+    "id": "suez_2021",
+    "name": "Suez Canal Blockage",
+    "date": "2021-03-23",
+    "category": "chokepoint",
+    "window": {"pre_days": 1, "post_days": 5},
+    "tickers": ["BNO", "USO", "IYT", "XLE", "SPY"]
+  }
+]
