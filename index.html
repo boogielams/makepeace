@@ -909,6 +909,10 @@
       </aside>
     </main>
     <div class="console-rail"></div>
+    <div class="trump-overlay" id="trumpOverlay" aria-live="polite">
+      <img src="/assets/trump.png" alt="Trump reaction" />
+      <div class="caption">Daddy Mad</div>
+    </div>
 
     <footer>
       Scenario projections are illustrative estimates based on historical parallels and current market data, not financial advice. Leverage amplifies gains AND losses. Past market reactions to geopolitical events don't guarantee future outcomes.
@@ -1576,7 +1580,11 @@
           createExplosion(options.explodeAt);
         } else {
           map.flyTo({ center: [site.lng, site.lat], zoom: Math.max(map.getZoom(), 4.2), speed: 0.6 });
-          map.once("moveend", () => createExplosion({ lng: site.lng, lat: site.lat }));
+          map.once("moveend", () => {
+            const coords = { lng: site.lng, lat: site.lat };
+            dropPeteMarker(coords);
+            createExplosion(coords);
+          });
         }
       }
       recalculate();
