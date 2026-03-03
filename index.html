@@ -1363,7 +1363,10 @@
     }
 
     function applyEvent(event, model) {
-      const multiplier = getEventMultiplier(event, model.depth, model.totalSeverity, model.prevMajor);
+      const strikeCount = (model.strikeCounts[event.id] || 0) + 1;
+      model.strikeCounts[event.id] = strikeCount;
+      const damageFactor = Math.min(1, 0.55 + (strikeCount - 1) * 0.2);
+      const multiplier = getEventMultiplier(event, model.depth, model.totalSeverity, model.prevMajor) * damageFactor;
       const horizonMultiplier = getHorizonMultiplier();
 
       event.assets.forEach((impact) => {
@@ -1387,7 +1390,7 @@
         model.prevMajor = true;
         model.majorCount += 1;
       }
-      model.impactLog.push({ id: event.id, multiplier });
+      model.impactLog.push({ id: event.id, multiplier, damage: Math.round(damageFactor * 100), strike: strikeCount });
     }
 
     function applyMacroSpillover(model) {
@@ -1439,7 +1442,8 @@
         totalSeverity: 0,
         prevMajor: false,
         majorCount: 0,
-        impactLog: []
+        impactLog: [],
+        strikeCounts: {}
       };
 
       state.stack.forEach((id) => {
@@ -1494,11 +1498,13 @@
         const event = SITES.find((loc) => loc.id === id);
         const log = state.impactLog[index];
         const multiplier = log ? log.multiplier : 1;
+        const damage = log ? log.damage : 100;
+        const strikeCount = log ? log.strike : 1;
         return `
-          <div class="strike-item" data-id="${id}">
+          <div class="strike-item" data-id="${id}" data-index="${index}">
             <div>
               <strong>${event.name}</strong>
-              <span>Effective impact ${Math.round(multiplier * 100)}% · ${event.type}</span>
+              <span>Impact ${Math.round(multiplier * 100)}% · Damage ${damage}% · Strike ${strikeCount}</span>
             </div>
             <button aria-label="Remove">✕</button>
           </div>
@@ -1507,9 +1513,10 @@
 
       queue.querySelectorAll(".strike-item").forEach((item) => {
         const id = item.getAttribute("data-id");
+        const index = Number(item.getAttribute("data-index"));
         item.querySelector("button").addEventListener("click", (event) => {
           event.stopPropagation();
-          state.stack = state.stack.filter((strikeId) => strikeId !== id);
+          state.stack.splice(index, 1);
           state.selected = state.stack[state.stack.length - 1] || null;
           recalculate();
           renderAll();
@@ -1664,9 +1671,7 @@
 
     function applyStrike(id, options = {}) {
       if (!id) return;
-      if (!state.stack.includes(id)) {
-        state.stack.push(id);
-      }
+      state.stack.push(id);
       state.selected = id;
       const site = SITES.find((loc) => loc.id === id);
       if (site && mapReady) {
@@ -1761,6 +1766,7 @@
     let map = null;
     let mapReady = false;
     let lastClickPixel = null;
+    const peteMarkers = [];
 
     async function initMap() {
       try {
@@ -1839,6 +1845,11 @@
           const id = e.features?.[0]?.properties?.id;
           if (id) applyStrike(id, { explodeAt: e.lngLat, pixel: e.point });
         });
+
+        map.on("move", syncPeteMarkers);
+        map.on("zoom", syncPeteMarkers);
+        map.on("rotate", syncPeteMarkers);
+        map.on("pitch", syncPeteMarkers);
       });
     }
 
@@ -1897,7 +1908,19 @@
       }
     });
 
-    function spawnPeteAtPixel(x, y) {
+    function positionPeteMarker(marker) {
+      if (!mapReady || !map) return;
+      const point = map.project(marker.lngLat);
+      marker.el.style.left = `${point.x}px`;
+      marker.el.style.top = `${point.y}px`;
+    }
+
+    function syncPeteMarkers() {
+      if (!mapReady || !map) return;
+      peteMarkers.forEach(positionPeteMarker);
+    }
+
+    function dropPeteMarker(lngLat, pixel) {
       const layer = document.getElementById("mapEffects");
       if (!layer) return;
       const el = document.createElement("div");
@@ -1906,19 +1929,17 @@
       img.src = PETE_DATA_URL;
       img.alt = "Pete";
       el.appendChild(img);
-      el.style.left = `${x}px`;
-      el.style.top = `${y}px`;
       layer.appendChild(el);
-    }
 
-    function dropPeteMarker(lngLat, pixel) {
-      if (pixel) {
-        spawnPeteAtPixel(pixel.x, pixel.y);
-        return;
+      const marker = { lngLat, el };
+      peteMarkers.push(marker);
+
+      if (mapReady && map) {
+        positionPeteMarker(marker);
+      } else if (pixel) {
+        el.style.left = `${pixel.x}px`;
+        el.style.top = `${pixel.y}px`;
       }
-      if (!mapReady || !map) return;
-      const point = map.project(lngLat);
-      spawnPeteAtPixel(point.x, point.y);
     }
 
     function createExplosionAtPixel(x, y) {
