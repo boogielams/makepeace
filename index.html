@@ -539,6 +539,7 @@
       border: 1px solid rgba(120, 220, 255, 0.65);
       border-radius: 50%;
       box-shadow: 0 0 24px rgba(37, 99, 235, 0.5);
+      color: rgba(120, 220, 255, 0.7);
       pointer-events: none;
       z-index: 7;
     }
@@ -551,13 +552,32 @@
       top: 50%;
       width: 58px;
       height: 1px;
-      background: rgba(120, 220, 255, 0.6);
+      background: currentColor;
       transform: translate(-50%, -50%);
     }
 
     .crosshair::after {
       width: 1px;
       height: 58px;
+    }
+
+    .crosshair.locked {
+      border-color: rgba(34, 197, 94, 0.95);
+      box-shadow: 0 0 26px rgba(34, 197, 94, 0.6);
+      color: rgba(34, 197, 94, 0.9);
+    }
+
+    .crosshair.no-lock {
+      border-color: rgba(239, 68, 68, 0.9);
+      box-shadow: 0 0 22px rgba(239, 68, 68, 0.55);
+      color: rgba(239, 68, 68, 0.9);
+      animation: lockFlash 0.35s ease;
+    }
+
+    @keyframes lockFlash {
+      0% { transform: translate(-50%, -50%) scale(1); }
+      40% { transform: translate(-50%, -50%) scale(1.08); }
+      100% { transform: translate(-50%, -50%) scale(1); }
     }
 
     .map-shell::after {
@@ -1728,45 +1748,21 @@
       renderAll();
     });
 
-    document.getElementById("map").addEventListener("click", (event) => {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const point = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-      lastClickPixel = point;
-      if (mapReady && map) {
-        const features = map.queryRenderedFeatures([point.x, point.y], { layers: ["strike-points"] });
-        if (features && features.length) {
-          const id = features[0].properties?.id;
-          if (id) {
-            const lngLat = map.unproject([point.x, point.y]);
-            applyStrike(id, { explodeAt: lngLat, pixel: point });
-            return;
-          }
-        }
-        let best = null;
-        let bestDist = Infinity;
-        SITES.forEach((site) => {
-          const proj = map.project([site.lng, site.lat]);
-          const dx = proj.x - point.x;
-          const dy = proj.y - point.y;
-          const dist = dx * dx + dy * dy;
-          if (dist < bestDist) {
-            bestDist = dist;
-            best = site;
-          }
-        });
-        if (best) {
-          const lngLat = map.unproject([point.x, point.y]);
-          applyStrike(best.id, { explodeAt: lngLat, pixel: point });
-          return;
-        }
+    document.getElementById("map").addEventListener("click", () => {
+      if (!mapReady || !map) return;
+      const locked = getLockedTarget();
+      if (!locked || !locked.id) {
+        flashNoLock();
+        return;
       }
-      applyStrike(DEFAULT_SITE, { pixel: point });
+      const lngLat = map.unproject([locked.point.x, locked.point.y]);
+      applyStrike(locked.id, { explodeAt: lngLat, pixel: locked.point });
     });
 
     let map = null;
     let mapReady = false;
-    let lastClickPixel = null;
     const peteMarkers = [];
+    const crosshair = document.querySelector(".crosshair");
 
     async function initMap() {
       try {
@@ -1841,15 +1837,14 @@
         map.on("mouseleave", "strike-points", () => {
           map.getCanvas().style.cursor = "";
         });
-        map.on("click", "strike-points", (e) => {
-          const id = e.features?.[0]?.properties?.id;
-          if (id) applyStrike(id, { explodeAt: e.lngLat, pixel: e.point });
-        });
-
         map.on("move", syncPeteMarkers);
         map.on("zoom", syncPeteMarkers);
         map.on("rotate", syncPeteMarkers);
         map.on("pitch", syncPeteMarkers);
+        map.on("move", updateReticleLock);
+        map.on("zoom", updateReticleLock);
+        map.on("rotate", updateReticleLock);
+        map.on("pitch", updateReticleLock);
       });
     }
 
@@ -1974,6 +1969,36 @@
       if (!mapReady || !map) return;
       const point = map.project(lngLat);
       createExplosionAtPixel(point.x, point.y);
+    }
+
+    function getReticlePoint() {
+      const rect = map.getContainer().getBoundingClientRect();
+      return { x: rect.width / 2, y: rect.height / 2 };
+    }
+
+    function getLockedTarget() {
+      if (!mapReady || !map) return null;
+      const point = getReticlePoint();
+      const features = map.queryRenderedFeatures([point.x, point.y], { layers: ["strike-points"] });
+      if (features && features.length) {
+        return { id: features[0].properties?.id, point };
+      }
+      return null;
+    }
+
+    function updateReticleLock() {
+      if (!crosshair) return;
+      const locked = getLockedTarget();
+      crosshair.classList.toggle("locked", Boolean(locked));
+      return locked;
+    }
+
+    function flashNoLock() {
+      if (!crosshair) return;
+      crosshair.classList.remove("no-lock");
+      void crosshair.offsetWidth;
+      crosshair.classList.add("no-lock");
+      setTimeout(() => crosshair.classList.remove("no-lock"), 380);
     }
 
     function syncSubtitleWidth() {
