@@ -44,6 +44,7 @@
         linear-gradient(150deg, #0a0a0f 0%, #0c0e18 50%, #08080f 100%);
       color: var(--ink);
       min-height: 100vh;
+      overflow: hidden;
     }
 
     body::before {
@@ -280,6 +281,7 @@
     .hud-dock {
       position: absolute;
       top: 120px;
+      bottom: 24px;
       display: flex;
       flex-direction: column;
       gap: 14px;
@@ -289,7 +291,8 @@
 
     .hud-dock.right {
       right: 24px;
-      width: 280px;
+      width: 300px;
+      height: calc(100vh - 160px);
     }
 
     .hud-dock.left {
@@ -299,19 +302,15 @@
     .hud-panel,
     .strike-panel {
       width: 100%;
-      max-height: calc(100vh - 220px);
+      max-height: calc(100vh - 180px);
       overflow: hidden;
       opacity: 0.9;
     }
 
     .hud-panel .panel-scroll {
-      max-height: 280px;
+      max-height: 320px;
       overflow: auto;
       padding-right: 6px;
-    }
-
-    .strike-panel .strike-queue {
-      max-height: 140px;
     }
 
     .impact-panel .panel,
@@ -342,6 +341,21 @@
       color: var(--ink-dim);
     }
 
+    .impact-summary {
+      flex: 0 0 auto;
+    }
+
+    .impact-assets {
+      flex: 1 1 auto;
+    }
+
+    .hud-readouts strong {
+      display: block;
+      font-size: 12px;
+      color: #f8fafc;
+      letter-spacing: 0.18em;
+    }
+
     .hud-panel.panel,
     .strike-panel.panel {
       background: rgba(10, 12, 18, 0.78);
@@ -363,7 +377,7 @@
     .title-block {
       position: fixed;
       left: 24px;
-      bottom: 20px;
+      top: 20px;
       z-index: 6;
       text-transform: uppercase;
       letter-spacing: 0.2em;
@@ -380,6 +394,92 @@
       font-size: 10px;
       color: var(--ink-dim);
       letter-spacing: 0.26em;
+    }
+
+    .hud-compass {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(8, 12, 18, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      color: #d7e7ff;
+      z-index: 6;
+      text-transform: uppercase;
+    }
+
+    .hud-compass .tick {
+      opacity: 0.6;
+      font-size: 10px;
+    }
+
+    .hud-readouts {
+      position: absolute;
+      right: 24px;
+      bottom: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, auto);
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(8, 12, 18, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: #d7e7ff;
+      z-index: 6;
+      text-transform: uppercase;
+    }
+
+    .hud-readouts span {
+      color: var(--ink-dim);
+      font-size: 9px;
+      display: block;
+    }
+
+    .hud-throttle {
+      position: absolute;
+      left: 24px;
+      bottom: 90px;
+      width: 10px;
+      height: 120px;
+      border-radius: 999px;
+      background: rgba(8, 12, 18, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      overflow: hidden;
+      z-index: 6;
+    }
+
+    .hud-throttle::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: var(--throttle, 20%);
+      background: linear-gradient(180deg, rgba(34, 197, 94, 0.9), rgba(37, 99, 235, 0.8));
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+    }
+
+    .hud-horizon {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 280px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      z-index: 6;
+      pointer-events: none;
     }
 
 .panel h2 {
@@ -991,43 +1091,51 @@
             <div class="directory-list" id="directoryList"></div>
           </div>
         </aside>
-
-        <div class="panel strike-panel" data-state="off">
-          <h2>Strike Queue</h2>
-          <div class="strike-queue" id="strikeQueue"></div>
-          <div class="strike-actions">
-            <button id="undoStrike">Undo Last</button>
-            <button id="resetStrike" class="primary">Reset Queue</button>
-          </div>
-        </div>
       </div>
 
       <div class="hud-dock right">
-        <aside class="impact-panel hud-panel">
+        <aside class="impact-panel hud-panel impact-summary">
           <div class="panel" data-state="idle">
             <h2>Impact Console</h2>
             <p class="note">Live market response based on the active strike stack.</p>
-            <div class="panel-scroll">
-              <div class="hud-label">Time Horizon</div>
-              <div class="horizon-toggle" id="horizonToggle"></div>
+            <div class="hud-label">Time Horizon</div>
+            <div class="horizon-toggle" id="horizonToggle"></div>
 
-              <div class="hud-label" style="margin-top: 14px;">Aggregate Scorecard</div>
-              <div class="impact-grid" id="impactGrid"></div>
-              <p class="impact-note" id="impactNote"></p>
+            <div class="hud-label" style="margin-top: 14px;">Aggregate Scorecard</div>
+            <div class="impact-grid" id="impactGrid"></div>
+            <p class="impact-note" id="impactNote"></p>
+          </div>
+        </aside>
 
-              <div class="hud-label" style="margin-top: 14px;">Top Impacted Assets</div>
-              <div class="asset-list" id="assetList"></div>
+        <aside class="impact-panel hud-panel impact-assets">
+          <div class="panel" data-state="idle">
+            <h2>Market Tape</h2>
+            <div class="hud-label">Top Impacted Assets</div>
+            <div class="asset-list" id="assetList"></div>
 
-              <div class="hud-label" style="margin-top: 14px;">Sector Baskets</div>
-              <div class="asset-list" id="basketList"></div>
+            <div class="hud-label" style="margin-top: 14px;">Sector Baskets</div>
+            <div class="asset-list" id="basketList"></div>
 
-              <div class="hud-label" style="margin-top: 14px;">Selected Strike Brief</div>
-              <div id="strikeBrief"></div>
-            </div>
+            <div class="hud-label" style="margin-top: 14px;">Selected Strike Brief</div>
+            <div id="strikeBrief"></div>
           </div>
         </aside>
       </div>
     </main>
+    <div class="hud-compass">
+      <span class="tick">W</span>
+      <span class="tick">NW</span>
+      <strong id="hudHeading">000</strong>
+      <span class="tick">NE</span>
+      <span class="tick">E</span>
+    </div>
+    <div class="hud-readouts">
+      <div><span>SPD</span><strong id="hudSpeed">000</strong></div>
+      <div><span>ALT</span><strong id="hudAlt">0000</strong></div>
+      <div><span>PIT</span><strong id="hudPitch">00°</strong></div>
+    </div>
+    <div class="hud-throttle" id="hudThrottle"></div>
+    <div class="hud-horizon"></div>
     <div class="title-block">
       Monitoring the Situation
       <span>and making it worse</span>
@@ -1509,6 +1617,7 @@
 
     function renderQueue() {
       const queue = document.getElementById("strikeQueue");
+      if (!queue) return;
       if (state.stack.length === 0) {
         queue.innerHTML = `<p class="note">No strikes queued. Select from the map or directory.</p>`;
         return;
@@ -1575,7 +1684,7 @@
       const ranked = Object.entries(state.assets)
         .map(([key, value]) => ({ key, value, info: ASSETS[key] }))
         .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
-        .slice(0, 10);
+        .slice(0, 5);
 
       if (ranked.length === 0) {
         list.innerHTML = `<p class="note">Select a strike to generate the asset tape.</p>`;
@@ -1597,7 +1706,6 @@
               <span class="chip">${info.class}</span>
               <span class="chip">${info.baseline}</span>
             </div>
-            <p>${buildRationale(key)}</p>
           </div>
         `;
       }).join("");
@@ -1609,7 +1717,7 @@
         .map(([key, value]) => ({ key, value, info: ASSETS[key] }))
         .filter((item) => item.info.class === "Basket")
         .sort((a, b) => Math.abs(b.value) - Math.abs(a.value))
-        .slice(0, 6);
+        .slice(0, 4);
 
       if (baskets.length === 0) {
         list.innerHTML = `<p class="note">Baskets will appear once strikes are applied.</p>`;
@@ -1734,19 +1842,25 @@
       }
     });
 
-    document.getElementById("undoStrike").addEventListener("click", () => {
-      state.stack.pop();
-      state.selected = state.stack[state.stack.length - 1] || null;
-      recalculate();
-      renderAll();
-    });
+    const undoStrike = document.getElementById("undoStrike");
+    if (undoStrike) {
+      undoStrike.addEventListener("click", () => {
+        state.stack.pop();
+        state.selected = state.stack[state.stack.length - 1] || null;
+        recalculate();
+        renderAll();
+      });
+    }
 
-    document.getElementById("resetStrike").addEventListener("click", () => {
-      state.stack = [];
-      state.selected = null;
-      recalculate();
-      renderAll();
-    });
+    const resetStrike = document.getElementById("resetStrike");
+    if (resetStrike) {
+      resetStrike.addEventListener("click", () => {
+        state.stack = [];
+        state.selected = null;
+        recalculate();
+        renderAll();
+      });
+    }
 
     document.getElementById("map").addEventListener("click", () => {
       if (!mapReady || !map) return;
@@ -1763,6 +1877,11 @@
     let mapReady = false;
     const peteMarkers = [];
     const crosshair = document.querySelector(".crosshair");
+    const hudHeading = document.getElementById("hudHeading");
+    const hudSpeed = document.getElementById("hudSpeed");
+    const hudAlt = document.getElementById("hudAlt");
+    const hudPitch = document.getElementById("hudPitch");
+    const hudThrottle = document.getElementById("hudThrottle");
 
     async function initMap() {
       try {
@@ -1845,6 +1964,11 @@
         map.on("zoom", updateReticleLock);
         map.on("rotate", updateReticleLock);
         map.on("pitch", updateReticleLock);
+        map.on("move", updateFlightHud);
+        map.on("zoom", updateFlightHud);
+        map.on("rotate", updateFlightHud);
+        map.on("pitch", updateFlightHud);
+        updateFlightHud();
       });
     }
 
@@ -1888,11 +2012,13 @@
       if (["w", "a", "s", "d", "q", "e"].includes(key)) {
         flightKeys.add(key);
         runFlightLoop();
+        updateFlightHud();
         event.preventDefault();
       }
       if (event.key === "Shift") {
         flightKeys.add("shift");
         runFlightLoop();
+        updateFlightHud();
       }
     });
 
@@ -1900,6 +2026,7 @@
       const key = event.key.toLowerCase();
       if (["w", "a", "s", "d", "q", "e", "shift"].includes(key)) {
         flightKeys.delete(key);
+        updateFlightHud();
       }
     });
 
@@ -1999,6 +2126,22 @@
       void crosshair.offsetWidth;
       crosshair.classList.add("no-lock");
       setTimeout(() => crosshair.classList.remove("no-lock"), 380);
+    }
+
+    function updateFlightHud() {
+      if (!map) return;
+      const heading = (map.getBearing() + 360) % 360;
+      const pitch = map.getPitch();
+      const zoom = map.getZoom();
+      const altitude = Math.max(120, Math.round(16000 / Math.pow(2, zoom - 3)));
+      const speed = flightKeys.size > 0 ? (flightKeys.has("shift") ? 780 : 420) : 0;
+      const throttle = flightKeys.size > 0 ? (flightKeys.has("shift") ? 85 : 55) : 20;
+
+      if (hudHeading) hudHeading.textContent = String(Math.round(heading)).padStart(3, "0");
+      if (hudAlt) hudAlt.textContent = altitude.toLocaleString();
+      if (hudPitch) hudPitch.textContent = `${Math.round(pitch)}°`;
+      if (hudSpeed) hudSpeed.textContent = String(speed).padStart(3, "0");
+      if (hudThrottle) hudThrottle.style.setProperty("--throttle", `${throttle}%`);
     }
 
     function syncSubtitleWidth() {
