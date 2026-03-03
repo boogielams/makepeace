@@ -291,8 +291,9 @@
 
     .hud-dock.right {
       right: 24px;
-      width: 300px;
-      height: calc(100vh - 160px);
+      width: 320px;
+      top: 90px;
+      height: calc(100vh - 120px);
     }
 
     .hud-dock.left {
@@ -349,16 +350,49 @@
       flex: 1 1 auto;
     }
 
+    .impact-summary .panel {
+      padding-bottom: 10px;
+    }
+
+    .impact-summary .impact-grid {
+      gap: 8px;
+    }
+
+    .impact-summary .impact-grid .impact-card {
+      padding: 10px 12px;
+    }
+
+    .impact-assets .panel {
+      max-height: calc(100vh - 210px);
+      overflow: auto;
+    }
+
+    .impact-assets .panel::-webkit-scrollbar,
+    .directory-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .impact-assets .panel::-webkit-scrollbar-thumb,
+    .directory-list::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.45);
+      border-radius: 999px;
+    }
+
+    .impact-assets .panel::-webkit-scrollbar-track,
+    .directory-list::-webkit-scrollbar-track {
+      background: rgba(8, 12, 18, 0.6);
+    }
+
     .directory-list {
-      max-height: 260px;
+      max-height: 180px;
       overflow: auto;
       padding-right: 6px;
     }
 
     .strike-history {
       margin-top: 10px;
-      max-height: 160px;
-      overflow: hidden;
+      max-height: none;
+      overflow: visible;
       padding-right: 0;
     }
 
@@ -1674,7 +1708,7 @@
         return;
       }
 
-      const recent = state.stack.slice(-4);
+      const recent = state.stack.slice(-3);
       queue.innerHTML = recent.map((id, index) => {
         const actualIndex = state.stack.length - recent.length + index;
         const event = SITES.find((loc) => loc.id === id);
