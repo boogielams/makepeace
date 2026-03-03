@@ -213,10 +213,9 @@
     }
 
     .layout {
-      display: grid;
-      grid-template-columns: minmax(260px, 0.7fr) minmax(0, 1.6fr) minmax(300px, 1fr);
-      gap: 18px;
-      padding: 22px 28px 140px;
+      position: relative;
+      padding: 22px 28px 160px;
+      min-height: 78vh;
     }
 
     .panel {
@@ -284,6 +283,51 @@
     .panel > * {
       position: relative;
       z-index: 2;
+    }
+
+    .hud-panel {
+      position: absolute;
+      z-index: 5;
+      width: min(320px, 35vw);
+      max-height: calc(100vh - 240px);
+      overflow: hidden;
+    }
+
+    .hud-panel .panel-scroll {
+      max-height: calc(100vh - 320px);
+      overflow: auto;
+      padding-right: 6px;
+    }
+
+    .impact-panel .panel {
+      width: 100%;
+    }
+
+    .hud-left {
+      top: 200px;
+      left: 32px;
+    }
+
+    .hud-right {
+      top: 200px;
+      right: 32px;
+      width: min(360px, 36vw);
+    }
+
+    .strike-panel {
+      position: absolute;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      width: min(720px, 80vw);
+      z-index: 4;
+    }
+
+    .hud-label {
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
     }
 
 .panel h2 {
@@ -385,9 +429,11 @@
     }
 
     .map-panel {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
+      position: relative;
+    }
+
+    .map-frame {
+      padding: 22px 22px 18px;
     }
 
     .map-shell {
@@ -401,7 +447,7 @@
 
     #map {
       width: 100%;
-      height: 520px;
+      height: 640px;
       filter: saturate(0.85) contrast(1.15) brightness(0.9);
     }
 
@@ -419,6 +465,37 @@
       inset: 0;
       pointer-events: none;
       z-index: 6;
+    }
+
+    .crosshair {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 46px;
+      height: 46px;
+      transform: translate(-50%, -50%);
+      border: 1px solid rgba(120, 220, 255, 0.65);
+      border-radius: 50%;
+      box-shadow: 0 0 24px rgba(37, 99, 235, 0.5);
+      pointer-events: none;
+      z-index: 7;
+    }
+
+    .crosshair::before,
+    .crosshair::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 58px;
+      height: 1px;
+      background: rgba(120, 220, 255, 0.6);
+      transform: translate(-50%, -50%);
+    }
+
+    .crosshair::after {
+      width: 1px;
+      height: 58px;
     }
 
     .map-shell::after {
@@ -786,49 +863,24 @@
       border-radius: 50%;
     }
 
-    .trump-overlay {
-      position: fixed;
-      right: 24px;
-      bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: rgba(10, 10, 15, 0.9);
-      border: 1px solid rgba(255, 120, 120, 0.6);
-      border-radius: 16px;
-      padding: 12px 16px;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.6);
-      z-index: 50;
-      opacity: 0;
-      transform: translateY(10px) scale(0.98);
-      pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-    }
-
-    .trump-overlay.active {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-
-    .trump-overlay img {
-      width: 64px;
-      height: 64px;
-      object-fit: contain;
-      filter: drop-shadow(0 0 10px rgba(255, 140, 140, 0.6));
-    }
-
-    .trump-overlay .caption {
-      font-family: "Oxanium", sans-serif;
-      font-size: 14px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: #ffb4b4;
-    }
-
 @media (max-width: 1100px) {
       .layout {
-        grid-template-columns: 1fr;
+        padding: 16px;
       }
+
+      .hud-panel,
+      .strike-panel {
+        position: static;
+        width: 100%;
+        max-height: none;
+        transform: none;
+        margin-bottom: 16px;
+      }
+
+      .map-panel {
+        margin-bottom: 16px;
+      }
+
       #map {
         height: 420px;
       }
@@ -857,29 +909,32 @@
     </header>
 
     <main class="layout">
-      <aside class="panel" id="directoryPanel" data-state="idle">
-        <h2>Map Directory (60 Sites)</h2>
-        <p class="note">Sites are grouped by infrastructure type. Coordinates are approximate city-level centroids for market modeling.</p>
+      <aside class="panel hud-panel hud-left" id="directoryPanel" data-state="idle">
+        <h2>Flight Regions (60 Sites)</h2>
+        <p class="note">Choose a zone, then click the map to strike. WASD to fly, Q/E to yaw.</p>
         <div class="directory-search">
           <input id="directorySearch" list="directoryOptions" placeholder="Search site" />
           <datalist id="directoryOptions"></datalist>
           <button id="directoryAdd">Apply</button>
         </div>
-        <div class="directory-list" id="directoryList"></div>
+        <div class="panel-scroll">
+          <div class="directory-list" id="directoryList"></div>
+        </div>
       </aside>
 
       <section class="map-panel">
-        <div class="panel" data-state="active">
-          <h2>Gulf Theater Map</h2>
-          <p class="note">Mapbox dark satellite base. Click hotspots or apply from directory. Each strike updates the market stack and asset tape.</p>
+        <div class="panel map-frame" data-state="active">
+          <h2>Gulf Theater Flight Cam</h2>
+          <p class="note">WASD to fly · Q/E yaw · Scroll to zoom · Click to strike. Each hit updates the market stack.</p>
           <div class="map-shell">
             <div id="map"></div>
             <div class="map-overlay"></div>
             <div class="map-effects" id="mapEffects"></div>
+            <div class="crosshair"></div>
           </div>
         </div>
 
-        <div class="panel" data-state="off">
+        <div class="panel strike-panel" data-state="off">
           <h2>Strike Queue</h2>
           <p class="note">Sequential strikes reprice the tape. Earlier shocks carry more weight than late additions.</p>
           <div class="strike-queue" id="strikeQueue"></div>
@@ -890,39 +945,31 @@
         </div>
       </section>
 
-      <aside class="impact-panel">
+      <aside class="impact-panel hud-panel hud-right">
         <div class="panel" data-state="idle">
-          <h2>Time Horizon</h2>
-          <div class="horizon-toggle" id="horizonToggle"></div>
-        </div>
+          <h2>Impact Console</h2>
+          <p class="note">Live market response based on the active strike stack.</p>
+          <div class="panel-scroll">
+            <div class="hud-label">Time Horizon</div>
+            <div class="horizon-toggle" id="horizonToggle"></div>
 
-        <div class="panel" data-state="idle">
-          <h2>Aggregate Scorecard</h2>
-          <div class="impact-grid" id="impactGrid"></div>
-          <p class="impact-note" id="impactNote"></p>
-        </div>
+            <div class="hud-label" style="margin-top: 14px;">Aggregate Scorecard</div>
+            <div class="impact-grid" id="impactGrid"></div>
+            <p class="impact-note" id="impactNote"></p>
 
-        <div class="panel" data-state="idle">
-          <h2>Top Impacted Assets</h2>
-          <div class="asset-list" id="assetList"></div>
-        </div>
+            <div class="hud-label" style="margin-top: 14px;">Top Impacted Assets</div>
+            <div class="asset-list" id="assetList"></div>
 
-        <div class="panel" data-state="idle">
-          <h2>Sector Baskets</h2>
-          <div class="asset-list" id="basketList"></div>
-        </div>
+            <div class="hud-label" style="margin-top: 14px;">Sector Baskets</div>
+            <div class="asset-list" id="basketList"></div>
 
-        <div class="panel" data-state="idle">
-          <h2>Selected Strike Brief</h2>
-          <div id="strikeBrief"></div>
+            <div class="hud-label" style="margin-top: 14px;">Selected Strike Brief</div>
+            <div id="strikeBrief"></div>
+          </div>
         </div>
       </aside>
     </main>
     <div class="console-rail"></div>
-    <div class="trump-overlay" id="trumpOverlay" aria-live="polite">
-      <img id="trumpImage" src="" alt="Trump reaction" />
-      <div class="caption" id="trumpCaption">Daddy Mad</div>
-    </div>
 
     <footer>
       Scenario projections are illustrative estimates based on historical parallels and current market data, not financial advice. Leverage amplifies gains AND losses. Past market reactions to geopolitical events don't guarantee future outcomes.
@@ -933,12 +980,8 @@
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
   <script>
     const PETE_DATA_URL = "/assets/pete.png";
-    const TRUMP_DATA_URL = "/assets/trump.png";
 
     let CALIBRATION = null;
-
-    const trumpImage = document.getElementById("trumpImage");
-    if (trumpImage) trumpImage.src = TRUMP_DATA_URL;
 
     const BASE_DATE = new Date("2026-02-28T00:00:00");
     const now = new Date();
@@ -1566,20 +1609,6 @@
     }
 
     
-    function updateDaddyMad() {
-      const overlay = document.getElementById("trumpOverlay");
-      const caption = document.getElementById("trumpCaption");
-      const spxMove = state.assets.spx || 0;
-      const vixMove = state.assets.vix || 0;
-      const mad = spxMove <= -1 || vixMove >= 2;
-      const active = state.stack.length > 0;
-      if (!overlay) return;
-      overlay.classList.toggle("active", active || mad);
-      if (caption) {
-        caption.textContent = mad ? "Daddy Mad" : "Daddy Watching";
-      }
-    }
-
     function renderAll() {
       renderDirectory();
       renderQueue();
@@ -1587,7 +1616,6 @@
       renderAssets();
       renderBaskets();
       renderStrikeBrief();
-      updateDaddyMad();
     }
 
     function applyStrike(id, options = {}) {
@@ -1766,6 +1794,61 @@
         });
       });
     }
+
+    const flightKeys = new Set();
+    let flightHandle = null;
+
+    function runFlightLoop() {
+      if (flightHandle) return;
+      const step = () => {
+        if (!mapReady || !map) {
+          flightHandle = null;
+          return;
+        }
+        if (flightKeys.size === 0) {
+          flightHandle = null;
+          return;
+        }
+        const speed = flightKeys.has("shift") ? 7 : 4;
+        let dx = 0;
+        let dy = 0;
+        if (flightKeys.has("w")) dy -= speed;
+        if (flightKeys.has("s")) dy += speed;
+        if (flightKeys.has("a")) dx -= speed;
+        if (flightKeys.has("d")) dx += speed;
+        if (dx || dy) {
+          map.panBy([dx, dy], { duration: 0 });
+        }
+        if (flightKeys.has("q")) {
+          map.setBearing(map.getBearing() - 0.6);
+        }
+        if (flightKeys.has("e")) {
+          map.setBearing(map.getBearing() + 0.6);
+        }
+        flightHandle = requestAnimationFrame(step);
+      };
+      flightHandle = requestAnimationFrame(step);
+    }
+
+    window.addEventListener("keydown", (event) => {
+      const key = event.key.toLowerCase();
+      if (["w", "a", "s", "d", "q", "e"].includes(key)) {
+        flightKeys.add(key);
+        runFlightLoop();
+        event.preventDefault();
+      }
+      if (event.key === "Shift") {
+        flightKeys.add("shift");
+        runFlightLoop();
+      }
+    });
+
+    window.addEventListener("keyup", (event) => {
+      const key = event.key.toLowerCase();
+      if (["w", "a", "s", "d", "q", "e", "shift"].includes(key)) {
+        flightKeys.delete(key);
+      }
+    });
 
     function spawnPeteAtPixel(x, y) {
       const layer = document.getElementById("mapEffects");
