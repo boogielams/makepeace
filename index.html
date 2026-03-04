@@ -38,6 +38,8 @@
       --right-width: clamp(300px, 23vw, 390px);
       --ui-font: clamp(11px, 0.66vw, 14px);
       --ui-font-sm: clamp(10px, 0.58vw, 12px);
+      --vv-bottom-offset: 0px;
+      --mobile-impact-reserve: 130px;
     }
 
     * {
@@ -1335,7 +1337,7 @@
         grid-template-rows: 50dvh minmax(0, 1fr);
         gap: 8px;
         padding: 8px;
-        padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px) + 150px);
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--mobile-impact-reserve));
         overflow-y: auto;
         overscroll-behavior-y: contain;
       }
@@ -1355,7 +1357,7 @@
         min-height: 0;
         min-width: 0;
         padding-top: 0;
-        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 110px);
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--mobile-impact-reserve));
         overflow-y: auto;
         overscroll-behavior: contain;
         -webkit-overflow-scrolling: touch;
@@ -1365,8 +1367,8 @@
       .hud-dock.left {
         grid-column: 1;
         grid-row: 2;
-        display: grid;
-        grid-template-rows: minmax(260px, 1fr) minmax(220px, 1fr);
+        display: flex;
+        flex-direction: column;
         gap: 8px;
       }
 
@@ -1374,6 +1376,18 @@
         grid-column: 2;
         grid-row: 2;
         display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .hud-dock.left .regions-panel {
+        flex: 1 1 58%;
+        min-height: 0;
+      }
+
+      .hud-dock.left .history-panel {
+        flex: 1 1 42%;
+        min-height: 0;
       }
 
       .impact-assets,
@@ -1389,6 +1403,7 @@
 
       .impact-panel .panel {
         flex: 1 1 auto;
+        width: 100%;
       }
 
       .market-section.assets,
@@ -1402,7 +1417,7 @@
         left: 8px;
         right: 8px;
         top: auto;
-        bottom: calc(env(safe-area-inset-bottom, 0px) + 56px);
+        bottom: calc(env(safe-area-inset-bottom, 0px) + var(--vv-bottom-offset, 0px) + 8px);
         grid-template-columns: minmax(0, 1fr);
         border-radius: 12px;
         padding: 7px 8px;
@@ -2772,6 +2787,29 @@
       }
     }
 
+    function syncMobileImpactBarOffset() {
+      const root = document.documentElement;
+      const impactBar = document.querySelector(".impact-bar");
+      const isMobile = window.matchMedia("(max-width: 980px)").matches;
+      if (!isMobile || !impactBar) {
+        root.style.setProperty("--vv-bottom-offset", "0px");
+        root.style.setProperty("--mobile-impact-reserve", "130px");
+        return;
+      }
+
+      let toolbarOffset = 0;
+      if (window.visualViewport) {
+        const vv = window.visualViewport;
+        toolbarOffset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      }
+
+      const barHeight = Math.ceil(impactBar.getBoundingClientRect().height || 52);
+      const reserve = Math.max(100, Math.ceil(barHeight + toolbarOffset + 24));
+
+      root.style.setProperty("--vv-bottom-offset", `${Math.round(toolbarOffset)}px`);
+      root.style.setProperty("--mobile-impact-reserve", `${reserve}px`);
+    }
+
     async function loadCalibration() {
       try {
         const res = await fetch("/data/impact-model/coefficients.json");
@@ -2790,12 +2828,21 @@
       recalculate();
       renderAll();
       syncSubtitleWidth();
+      syncMobileImpactBarOffset();
     });
-    window.addEventListener("load", syncSubtitleWidth);
+    window.addEventListener("load", () => {
+      syncSubtitleWidth();
+      syncMobileImpactBarOffset();
+    });
     window.addEventListener("resize", () => {
       syncSubtitleWidth();
       renderAggregate();
+      syncMobileImpactBarOffset();
     });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", syncMobileImpactBarOffset);
+      window.visualViewport.addEventListener("scroll", syncMobileImpactBarOffset);
+    }
   </script>
 </body>
 </html>
