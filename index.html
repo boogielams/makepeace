@@ -203,6 +203,13 @@
       font-size: 14px;
     }
 
+    :root {
+      --hud-side: 24px;
+      --hud-gap: 14px;
+      --impact-bar-height: 72px;
+      --hud-top: 110px;
+    }
+
     .layout {
       position: relative;
       flex: 1;
@@ -280,28 +287,27 @@
 
     .hud-dock {
       position: absolute;
-      top: 110px;
+      top: var(--hud-top);
       bottom: 24px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      width: 240px;
+      gap: var(--hud-gap);
+      width: clamp(210px, 22vw, 260px);
       z-index: 5;
     }
 
     .hud-dock.right {
-      right: 24px;
-      width: 340px;
-      top: 80px;
+      right: var(--hud-side);
+      width: clamp(280px, 28vw, 360px);
+      top: var(--hud-top);
       bottom: 24px;
       height: auto;
     }
 
     .hud-dock.left {
-      left: 24px;
-      top: 110px;
+      left: var(--hud-side);
       bottom: auto;
-      height: 60vh;
+      height: 54vh;
     }
 
     .hud-panel,
@@ -397,6 +403,7 @@
       border: 1px solid rgba(148, 163, 184, 0.2);
       z-index: 7;
       backdrop-filter: blur(6px);
+      min-height: var(--impact-bar-height);
     }
 
     .impact-bar h4 {
@@ -1315,21 +1322,122 @@
       border-radius: 50%;
     }
 
+@media (max-width: 1300px) {
+      .hud-dock.left {
+        width: clamp(200px, 24vw, 240px);
+      }
+
+      .hud-dock.right {
+        width: clamp(260px, 30vw, 320px);
+      }
+
+      .impact-bar {
+        transform: translateX(-50%) scale(0.94);
+      }
+    }
+
 @media (max-width: 1100px) {
-      .hud-dock {
-        position: static;
-        width: 100%;
-        max-height: none;
-        margin: 16px;
+      .layout {
+        height: auto;
+        overflow: visible;
       }
 
       .map-panel {
-        position: static;
-        height: auto;
+        position: relative;
+        height: 55vh;
+        min-height: 360px;
       }
 
       #map {
-        height: 420px;
+        height: 55vh;
+        min-height: 360px;
+      }
+
+      .hud-dock {
+        position: static;
+        width: auto;
+        height: auto;
+        max-height: none;
+        margin: 16px;
+        gap: 12px;
+      }
+
+      .hud-dock.left,
+      .hud-dock.right {
+        top: auto;
+        bottom: auto;
+        width: auto;
+      }
+
+      .impact-bar {
+        position: sticky;
+        top: 12px;
+        left: 0;
+        transform: none;
+        width: calc(100% - 32px);
+        margin: 12px 16px;
+        border-radius: 18px;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        z-index: 8;
+      }
+
+      .impact-bar-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .impact-meta {
+        min-width: auto;
+      }
+
+      .impact-bar .horizon-toggle {
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .title-block {
+        position: static;
+        margin: 12px 16px 0;
+      }
+
+      .hud-compass,
+      .hud-readouts,
+      .hud-throttle,
+      .hud-horizon {
+        display: none;
+      }
+    }
+
+@media (max-width: 720px) {
+      .impact-bar {
+        gap: 10px;
+        padding: 10px;
+      }
+
+      .impact-bar-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .impact-chip {
+        min-height: 40px;
+      }
+
+      .impact-chip strong {
+        font-size: 12px;
+      }
+
+      .hud-dock {
+        margin: 12px;
+      }
+
+      .panel {
+        padding: 16px 16px 18px;
+      }
+
+      .map-panel,
+      #map {
+        height: 52vh;
+        min-height: 320px;
       }
     }
   </style>
