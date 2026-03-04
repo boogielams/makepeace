@@ -360,6 +360,7 @@
     .strike-history {
       flex: 1 1 auto;
       min-height: 0;
+      max-height: 180px;
       overflow: auto;
       padding-right: 6px;
     }
@@ -449,40 +450,41 @@
 
     .impact-assets .panel {
       height: 100%;
-      overflow: hidden;
+      overflow: auto;
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
-    .asset-scroll,
-    .brief-scroll {
-      flex: 1 1 0;
-      min-height: 0;
-      overflow: auto;
-      padding-right: 6px;
-    }
-
-    .asset-scroll::-webkit-scrollbar,
-    .brief-scroll::-webkit-scrollbar,
+    .impact-assets .panel::-webkit-scrollbar,
     .regions-panel .directory-list::-webkit-scrollbar,
     .strike-history::-webkit-scrollbar {
       width: 6px;
     }
 
-    .asset-scroll::-webkit-scrollbar-thumb,
-    .brief-scroll::-webkit-scrollbar-thumb,
+    .impact-assets .panel::-webkit-scrollbar-thumb,
     .regions-panel .directory-list::-webkit-scrollbar-thumb,
     .strike-history::-webkit-scrollbar-thumb {
       background: rgba(148, 163, 184, 0.45);
       border-radius: 999px;
     }
 
-    .asset-scroll::-webkit-scrollbar-track,
-    .brief-scroll::-webkit-scrollbar-track,
+    .impact-assets .panel::-webkit-scrollbar-track,
     .regions-panel .directory-list::-webkit-scrollbar-track,
     .strike-history::-webkit-scrollbar-track {
       background: rgba(8, 12, 18, 0.6);
+    }
+
+    .reticle-btn {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      font-size: 16px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
     }
 
     .hud-readouts strong {
@@ -1249,7 +1251,7 @@
           <div class="directory-search">
             <input id="directorySearch" list="directoryOptions" placeholder="Search site" />
             <datalist id="directoryOptions"></datalist>
-            <button id="directoryAdd">Apply</button>
+            <button id="directoryAdd" class="reticle-btn" aria-label="Target Strike">◎</button>
           </div>
           <div class="directory-list" id="directoryList"></div>
         </aside>
@@ -1265,12 +1267,10 @@
           <div class="panel" data-state="idle">
             <h2>Market Tape</h2>
             <div class="hud-label">Top Impacted Assets</div>
-            <div class="asset-scroll">
-              <div class="asset-list" id="assetList"></div>
-            </div>
+            <div class="asset-list" id="assetList"></div>
 
             <div class="hud-label" style="margin-top: 14px;">Selected Strike Brief</div>
-            <div class="brief-scroll" id="strikeBrief"></div>
+            <div id="strikeBrief"></div>
           </div>
         </aside>
       </div>
@@ -1645,9 +1645,7 @@
     }
 
     function applyEvent(event, model) {
-      const strikeCount = (model.strikeCounts[event.id] || 0) + 1;
-      model.strikeCounts[event.id] = strikeCount;
-      const damageFactor = Math.min(1, 0.55 + (strikeCount - 1) * 0.2);
+      const damageFactor = 1;
       const multiplier = getEventMultiplier(event, model.depth, model.totalSeverity, model.prevMajor) * damageFactor;
       const horizonMultiplier = getHorizonMultiplier();
 
@@ -1672,7 +1670,7 @@
         model.prevMajor = true;
         model.majorCount += 1;
       }
-      model.impactLog.push({ id: event.id, multiplier, damage: Math.round(damageFactor * 100), strike: strikeCount });
+      model.impactLog.push({ id: event.id, multiplier, damage: Math.round(damageFactor * 100), strike: 1 });
     }
 
     function applyMacroSpillover(model) {
@@ -1724,8 +1722,7 @@
         totalSeverity: 0,
         prevMajor: false,
         majorCount: 0,
-        impactLog: [],
-        strikeCounts: {}
+        impactLog: []
       };
 
       state.stack.forEach((id) => {
@@ -1777,9 +1774,8 @@
         return;
       }
 
-      const recent = state.stack.slice(-3);
-      queue.innerHTML = recent.map((id, index) => {
-        const actualIndex = state.stack.length - recent.length + index;
+      queue.innerHTML = state.stack.map((id, index) => {
+        const actualIndex = index;
         const event = SITES.find((loc) => loc.id === id);
         const log = state.impactLog[actualIndex];
         const multiplier = log ? log.multiplier : 1;
@@ -1959,6 +1955,9 @@
 
     function applyStrike(id, options = {}) {
       if (!id) return;
+      if (state.stack.includes(id)) {
+        return;
+      }
       state.stack.push(id);
       state.selected = id;
       const site = SITES.find((loc) => loc.id === id);
