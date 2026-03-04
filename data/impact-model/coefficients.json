@@ -1,0 +1,26 @@
+{
+  "sector_multipliers": {
+    "energy": 1,
+    "gas": 1,
+    "lng": 1,
+    "haven": 1,
+    "macro": 1,
+    "defense": 1,
+    "airlines": 1,
+    "transport": 1,
+    "travel": 1,
+    "shipping": 1,
+    "cyber": 1,
+    "uranium": 1
+  },
+  "category_multipliers": {
+    "chokepoint": 1,
+    "refinery": 1,
+    "export": 1,
+    "lng": 1,
+    "port": 1,
+    "base": 1,
+    "capital": 1
+  },
+  "asset_multipliers": {}
+}

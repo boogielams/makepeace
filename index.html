@@ -30,16 +30,14 @@
       --bezel-dark: #b6ad9f;
       --bezel-edge: rgba(255, 255, 255, 0.65);
       --screen-glow: rgba(120, 200, 255, 0.12);
-      --hud-side: 2vw;
-      --hud-gap: 1.2vh;
-      --impact-bar-height: 8vh;
-      --hud-top: calc(var(--impact-bar-height) + 2vh);
-      --panel-block: 20vh;
-      --market-height: 60vh;
-      --left-width: 20vw;
-      --right-width: 20vw;
-      --ui-font: clamp(4px, 0.9vw, 14px);
-      --ui-font-sm: clamp(3px, 0.75vw, 12px);
+      --hud-side: clamp(12px, 1.5vw, 28px);
+      --hud-gap: clamp(10px, 1vh, 16px);
+      --impact-bar-height: clamp(70px, 8vh, 110px);
+      --hud-top: calc(var(--impact-bar-height) + 10px);
+      --left-width: clamp(260px, 21vw, 360px);
+      --right-width: clamp(300px, 23vw, 390px);
+      --ui-font: clamp(11px, 0.66vw, 14px);
+      --ui-font-sm: clamp(10px, 0.58vw, 12px);
     }
 
     * {
@@ -55,6 +53,7 @@
       color: var(--ink);
       font-size: var(--ui-font);
       min-height: 100vh;
+      min-height: 100dvh;
       overflow: hidden;
     }
 
@@ -220,6 +219,7 @@
       padding: 0;
       overflow: hidden;
       height: 100vh;
+      height: 100dvh;
     }
 
     .panel {
@@ -292,7 +292,7 @@
     .hud-dock {
       position: absolute;
       top: var(--hud-top);
-      bottom: 2vh;
+      bottom: var(--hud-side);
       display: flex;
       flex-direction: column;
       gap: var(--hud-gap);
@@ -304,14 +304,14 @@
       right: var(--hud-side);
       width: var(--right-width);
       top: var(--hud-top);
-      bottom: 2vh;
+      bottom: var(--hud-side);
       height: auto;
     }
 
     .hud-dock.left {
       left: var(--hud-side);
       bottom: auto;
-      height: calc(100vh - var(--hud-top) - 2vh);
+      height: calc(100dvh - var(--hud-top) - var(--hud-side));
     }
 
     .hud-panel,
@@ -334,7 +334,7 @@
       background: rgba(10, 12, 18, 0.78);
       border: 1px solid rgba(148, 163, 184, 0.25);
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
-      padding: 1.2vh 1vw 1.4vh;
+      padding: clamp(10px, 1.1vh, 16px) clamp(10px, 0.9vw, 14px) clamp(12px, 1.4vh, 18px);
     }
 
     .impact-panel .panel::before,
@@ -395,23 +395,20 @@
 
     .impact-bar {
       position: fixed;
-      top: 2vh;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
+      top: var(--hud-side);
+      left: calc(var(--hud-side) + var(--left-width) + 12px);
+      right: calc(var(--hud-side) + var(--right-width) + 12px);
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
       align-items: center;
-      gap: 1.2vw;
-      padding: 0.8vh 1.2vw;
-      border-radius: 999px;
+      gap: clamp(8px, 0.9vw, 14px);
+      padding: 8px 12px;
+      border-radius: 16px;
       background: rgba(8, 12, 18, 0.65);
       border: 1px solid rgba(148, 163, 184, 0.2);
       z-index: 7;
       backdrop-filter: blur(6px);
       min-height: var(--impact-bar-height);
-      width: calc(100vw - (var(--left-width) + var(--right-width) + 4 * var(--hud-side)));
-      max-width: calc(100vw - (var(--left-width) + var(--right-width) + 4 * var(--hud-side)));
-      flex-wrap: nowrap;
-      white-space: nowrap;
       overflow: hidden;
     }
 
@@ -425,20 +422,21 @@
 
     .impact-bar-grid {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 0.8vw;
+      grid-template-columns: repeat(5, minmax(90px, 1fr));
+      gap: clamp(6px, 0.55vw, 10px);
       font-family: "IBM Plex Mono", monospace;
       font-size: var(--ui-font-sm);
       color: #e2e8f0;
+      min-width: 0;
     }
 
     .impact-chip {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 4.6vh;
-      gap: 0.2vh;
-      padding: 0.5vh 0.8vw;
+      min-height: 50px;
+      gap: 2px;
+      padding: 6px 8px;
       border-radius: 10px;
       background: rgba(15, 18, 26, 0.65);
       border: 1px solid rgba(148, 163, 184, 0.2);
@@ -465,10 +463,10 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 4.6vh;
+      min-height: 50px;
       font-size: var(--ui-font-sm);
       color: var(--ink-dim);
-      min-width: 10vw;
+      min-width: 72px;
       white-space: nowrap;
     }
 
@@ -480,19 +478,20 @@
 
     .impact-bar .horizon-toggle {
       display: flex;
-      gap: 0.6vw;
+      gap: 6px;
     }
 
     .impact-bar .horizon-toggle button {
-      padding: 0.6vh 0.8vw;
+      padding: 6px 10px;
       border-radius: 999px;
       font-size: var(--ui-font-sm);
       letter-spacing: 0.12em;
+      white-space: nowrap;
     }
 
     .impact-assets .panel {
-      height: var(--market-height);
-      max-height: var(--market-height);
+      height: 100%;
+      max-height: 100%;
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -523,8 +522,8 @@
     }
 
     .reticle-btn {
-      width: clamp(10px, 2.2vw, 30px);
-      height: clamp(10px, 2.2vw, 30px);
+      width: clamp(28px, 2.2vw, 34px);
+      height: clamp(28px, 2.2vw, 34px);
       padding: 0;
       font-size: var(--ui-font);
       font-weight: 600;
@@ -546,7 +545,7 @@
       background: rgba(10, 12, 18, 0.78);
       border: 1px solid rgba(148, 163, 184, 0.25);
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
-      padding: 1.2vh 1vw 1.4vh;
+      padding: clamp(10px, 1.1vh, 16px) clamp(10px, 0.9vw, 14px) clamp(12px, 1.4vh, 18px);
     }
 
     .hud-panel.panel::before,
@@ -1100,6 +1099,13 @@
       margin-top: 0.3vh;
     }
 
+    .strike-item .summary {
+      font-size: var(--ui-font-sm);
+      color: #cbd5e1;
+      margin-top: 0.35vh;
+      line-height: 1.35;
+    }
+
     .strike-item button {
       background: transparent;
       border: none;
@@ -1172,11 +1178,12 @@
     }
 
     .market-section.assets {
-      flex: 2 1 0;
+      flex: 3 1 0;
     }
 
     .market-section.brief {
-      flex: 1 1 0;
+      flex: 2 1 0;
+      min-height: 180px;
     }
 
     .asset-list {
@@ -1197,6 +1204,11 @@
       display: flex;
       flex-direction: column;
       gap: 0.6vh;
+    }
+
+    .strike-brief .note {
+      margin-bottom: 4px;
+      line-height: 1.5;
     }
 
     .brief-assets {
@@ -1253,6 +1265,12 @@
       color: var(--ink-dim);
     }
 
+    .chip.impact-up,
+    .chip.impact-down {
+      border-color: rgba(148, 163, 184, 0.35);
+      color: #cbd5e1;
+    }
+
     .impact-note {
       font-size: 11px;
       color: var(--ink-dim);
@@ -1281,6 +1299,117 @@
       border-color: var(--stroke-bright);
       color: var(--ink);
       box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.5);
+    }
+
+    @media (max-width: 1400px) {
+      :root {
+        --left-width: clamp(230px, 20vw, 300px);
+        --right-width: clamp(260px, 22vw, 340px);
+      }
+
+      .impact-bar {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+      }
+
+      .impact-bar .horizon-toggle {
+        grid-column: 1 / -1;
+      }
+
+      .impact-bar-grid {
+        grid-template-columns: repeat(5, minmax(78px, 1fr));
+      }
+    }
+
+    @media (max-width: 980px) {
+      :root {
+        --hud-side: 8px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-rows: 50dvh minmax(0, 1fr);
+        gap: 8px;
+        padding: 8px;
+      }
+
+      .map-panel {
+        position: relative;
+        grid-column: 1 / -1;
+        grid-row: 1;
+        min-height: 0;
+      }
+
+      .hud-dock {
+        position: relative;
+        inset: auto;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+      }
+
+      .hud-dock.left {
+        grid-column: 1;
+        grid-row: 2;
+        display: grid;
+        grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 8px;
+      }
+
+      .hud-dock.right {
+        grid-column: 2;
+        grid-row: 2;
+      }
+
+      .impact-assets,
+      .impact-assets .panel {
+        height: 100%;
+      }
+
+      .market-section.assets,
+      .market-section.brief {
+        flex: 1 1 0;
+        min-height: 0;
+      }
+
+      .impact-bar {
+        left: 8px;
+        right: 8px;
+        top: 8px;
+        grid-template-columns: minmax(0, 1fr);
+        border-radius: 12px;
+      }
+
+      .impact-bar h4 {
+        display: none;
+      }
+
+      .impact-bar-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+
+      .impact-meta,
+      .impact-bar .horizon-toggle {
+        justify-self: stretch;
+      }
+
+      .impact-bar .horizon-toggle button {
+        flex: 1;
+      }
+
+      .hud-compass,
+      .hud-readouts,
+      .hud-throttle,
+      .hud-horizon,
+      .title-block {
+        display: none;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .impact-bar-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
     }
 
     @keyframes pulse {
@@ -1774,7 +1903,8 @@
       horizon: "intraday",
       aggregates: {},
       assets: {},
-      impactLog: []
+      impactLog: [],
+      strikeDetails: []
     };
 
     const directoryList = document.getElementById("directoryList");
@@ -1821,6 +1951,7 @@
       const damageFactor = 1;
       const multiplier = getEventMultiplier(event, model.depth, model.totalSeverity, model.prevMajor) * damageFactor;
       const horizonMultiplier = getHorizonMultiplier();
+      const trace = [];
 
       event.assets.forEach((impact) => {
         const assetKey = impact.assetId;
@@ -1835,6 +1966,14 @@
 
         model.assets[assetKey] = (model.assets[assetKey] || 0) + contribution;
         model.assetHits[assetKey] = assetHit + 1;
+        trace.push({
+          assetId: assetKey,
+          rationale: impact.rationale,
+          base: impact.base,
+          direction: impact.direction,
+          contribution,
+          saturationPenalty
+        });
       });
 
       model.depth += 1;
@@ -1843,7 +1982,8 @@
         model.prevMajor = true;
         model.majorCount += 1;
       }
-      model.impactLog.push({ id: event.id, multiplier, damage: Math.round(damageFactor * 100), strike: 1 });
+      trace.sort((a, b) => Math.abs(b.contribution) - Math.abs(a.contribution));
+      model.impactLog.push({ id: event.id, multiplier, damage: Math.round(damageFactor * 100), strike: 1, trace });
     }
 
     function applyMacroSpillover(model) {
@@ -1907,6 +2047,20 @@
 
       state.assets = model.assets;
       state.impactLog = model.impactLog;
+      state.strikeDetails = model.impactLog.map((entry) => {
+        const event = SITES.find((loc) => loc.id === entry.id);
+        const topContributors = (entry.trace || []).slice(0, 2).map((item) => {
+          const info = ASSETS[item.assetId];
+          return `${info ? info.symbol : item.assetId.toUpperCase()} ${formatImpact(item.contribution)}`;
+        }).join(" · ");
+        return {
+          id: entry.id,
+          event,
+          multiplier: entry.multiplier,
+          assets: entry.trace || [],
+          topContributors
+        };
+      });
       state.aggregates = METRICS.reduce((acc, metric) => {
         acc[metric.key] = model.assets[metric.key] || 0;
         return acc;
@@ -1955,12 +2109,14 @@
         const actualIndex = state.stack.length - 1 - index;
         const event = SITES.find((loc) => loc.id === id);
         const log = state.impactLog[actualIndex];
+        const detail = state.strikeDetails[actualIndex];
         const multiplier = log ? log.multiplier : 1;
         return `
           <div class="strike-item" data-id="${id}" data-index="${actualIndex}">
             <div>
               <strong>${event.name}</strong>
-              <span>Market impact ${Math.round(multiplier * 100)}%</span>
+              <span>Model weight ${Math.round(multiplier * 100)}%</span>
+              <p class="summary">${detail?.topContributors || "No asset-level trace available."}</p>
             </div>
             <button aria-label="Remove">✕</button>
           </div>
@@ -2072,29 +2228,19 @@
       }).join("");
     }
 
-    function buildRationale(assetKey) {
-      const reasons = [];
-      state.stack.forEach((id) => {
-        const event = SITES.find((loc) => loc.id === id);
-        if (!event) return;
-        const impact = event.assets.find((item) => item.assetId === assetKey);
-        if (impact) reasons.push(`${event.name}: ${impact.rationale}`);
-      });
-      if (reasons.length === 0) return "No direct exposure in current strike stack.";
-      return reasons.slice(0, 2).join(" · ");
-    }
-
     function renderStrikeBrief() {
       const brief = document.getElementById("strikeBrief");
       const selectedId = state.selected || state.stack[state.stack.length - 1];
       const event = SITES.find((loc) => loc.id === selectedId);
+      const strikeIndex = state.stack.indexOf(selectedId);
+      const detail = strikeIndex >= 0 ? state.strikeDetails[strikeIndex] : null;
       if (!event) {
         brief.innerHTML = `<p class="note">Select a strike to see the asset-specific impact rationale.</p>`;
         return;
       }
-      const assetList = event.assets.map((impact) => {
-        const asset = ASSETS[impact.assetId];
-        const sign = impact.direction > 0 ? "+" : "-";
+      const assetList = (detail?.assets || []).map((impact) => {
+        const asset = ASSETS[impact.assetId] || { symbol: impact.assetId.toUpperCase(), name: "Unmapped Asset" };
+        const cls = impact.contribution > 0.4 ? "impact-up" : impact.contribution < -0.4 ? "impact-down" : "impact-neutral";
         return `
           <div class="asset-item">
             <header>
@@ -2102,16 +2248,22 @@
                 <strong>${asset.symbol}</strong>
                 <span>${asset.name}</span>
               </div>
-              <strong class="${impact.direction > 0 ? "impact-up" : "impact-down"}">${sign}${impact.base}%</strong>
+              <strong class="${cls}">${formatImpact(impact.contribution)}</strong>
             </header>
             <p>${impact.rationale}</p>
+            <div class="asset-meta">
+              <span class="chip">${impact.direction > 0 ? "Risk Bid" : "Risk Relief"}</span>
+              <span class="chip">Base ${impact.direction > 0 ? "+" : "-"}${impact.base}%</span>
+              <span class="chip ${cls}">Saturation x${impact.saturationPenalty.toFixed(2)}</span>
+            </div>
           </div>
         `;
       }).join("");
 
       brief.innerHTML = `
         <p class="note">${event.summary}</p>
-        <div class="brief-assets">${assetList}</div>
+        <p class="impact-note">Model weight ${Math.round((detail?.multiplier || 1) * 100)}% after sequence and severity penalties.</p>
+        <div class="brief-assets">${assetList || `<p class="note">No direct asset trace for this strike.</p>`}</div>
       `;
     }
 
@@ -2548,7 +2700,11 @@
     async function loadCalibration() {
       try {
         const res = await fetch("/data/impact-model/coefficients.json");
-        if (res.ok) CALIBRATION = await res.json();
+        if (res.ok) {
+          CALIBRATION = await res.json();
+        } else {
+          CALIBRATION = null;
+        }
       } catch (err) {
         CALIBRATION = null;
       }
