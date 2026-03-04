@@ -280,12 +280,12 @@
 
     .hud-dock {
       position: absolute;
-      top: 120px;
+      top: 110px;
       bottom: 24px;
       display: flex;
       flex-direction: column;
       gap: 14px;
-      width: 260px;
+      width: 240px;
       z-index: 5;
     }
 
@@ -304,7 +304,7 @@
     .strike-panel {
       width: 100%;
       max-height: calc(100vh - 180px);
-      overflow: visible;
+      overflow: hidden;
       opacity: 0.9;
     }
 
@@ -342,72 +342,147 @@
       color: var(--ink-dim);
     }
 
+    .regions-panel,
+    .history-panel {
+      flex: 1 1 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .regions-panel .directory-list {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
+      padding-right: 6px;
+    }
+
+    .strike-history {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
+      padding-right: 6px;
+    }
+
+    .strike-history .strike-item {
+      border-color: rgba(148, 163, 184, 0.18);
+      background: rgba(12, 15, 22, 0.65);
+      padding: 10px 12px;
+    }
+
     .impact-summary {
       flex: 0 0 auto;
     }
 
     .impact-assets {
       flex: 1 1 auto;
+      min-height: 0;
     }
 
-    .impact-summary .panel {
-      padding-bottom: 10px;
+    .impact-bar {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(8, 12, 18, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      z-index: 7;
+      backdrop-filter: blur(6px);
     }
 
-    .impact-summary .impact-grid {
-      gap: 8px;
+    .impact-bar h4 {
+      font-family: "Oxanium", sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #d6ecff;
     }
 
-    .impact-summary .impact-grid .impact-card {
-      padding: 10px 12px;
+    .impact-bar-grid {
+      display: grid;
+      grid-template-columns: repeat(5, auto);
+      gap: 10px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      color: #e2e8f0;
+    }
+
+    .impact-chip {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: rgba(15, 18, 26, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .impact-chip span {
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+    }
+
+    .impact-bar-note {
+      font-size: 10px;
+      color: var(--ink-dim);
+      max-width: 180px;
+    }
+
+    .impact-bar .horizon-toggle {
+      display: flex;
+      gap: 6px;
+    }
+
+    .impact-bar .horizon-toggle button {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      letter-spacing: 0.12em;
     }
 
     .impact-assets .panel {
-      max-height: calc(100vh - 210px);
-      overflow: auto;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
-    .impact-assets .panel::-webkit-scrollbar,
-    .directory-list::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .impact-assets .panel::-webkit-scrollbar-thumb,
-    .directory-list::-webkit-scrollbar-thumb {
-      background: rgba(148, 163, 184, 0.45);
-      border-radius: 999px;
-    }
-
-    .impact-assets .panel::-webkit-scrollbar-track,
-    .directory-list::-webkit-scrollbar-track {
-      background: rgba(8, 12, 18, 0.6);
-    }
-
-    .directory-list {
-      max-height: 180px;
+    .asset-scroll,
+    .brief-scroll {
+      flex: 1 1 0;
+      min-height: 0;
       overflow: auto;
       padding-right: 6px;
     }
 
-    .strike-history {
-      margin-top: 10px;
-      max-height: none;
-      overflow: visible;
-      padding-right: 0;
+    .asset-scroll::-webkit-scrollbar,
+    .brief-scroll::-webkit-scrollbar,
+    .regions-panel .directory-list::-webkit-scrollbar,
+    .strike-history::-webkit-scrollbar {
+      width: 6px;
     }
 
-    .strike-history .strike-item {
-      border-color: rgba(148, 163, 184, 0.18);
-      background: rgba(12, 15, 22, 0.65);
+    .asset-scroll::-webkit-scrollbar-thumb,
+    .brief-scroll::-webkit-scrollbar-thumb,
+    .regions-panel .directory-list::-webkit-scrollbar-thumb,
+    .strike-history::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.45);
+      border-radius: 999px;
     }
 
-    .impact-assets .panel {
-      max-height: calc(100vh - 260px);
-      overflow: auto;
-    }
-
-    .strike-history .strike-item {
-      padding: 10px 12px;
+    .asset-scroll::-webkit-scrollbar-track,
+    .brief-scroll::-webkit-scrollbar-track,
+    .regions-panel .directory-list::-webkit-scrollbar-track,
+    .strike-history::-webkit-scrollbar-track {
+      background: rgba(8, 12, 18, 0.6);
     }
 
     .hud-readouts strong {
@@ -1168,7 +1243,7 @@
       </section>
 
       <div class="hud-dock left">
-        <aside class="panel hud-panel" id="directoryPanel" data-state="idle">
+        <aside class="panel hud-panel regions-panel" id="directoryPanel" data-state="idle">
           <h2>Flight Regions</h2>
           <p class="note">WASD to fly · Q/E yaw · Click to strike.</p>
           <div class="directory-search">
@@ -1177,41 +1252,35 @@
             <button id="directoryAdd">Apply</button>
           </div>
           <div class="directory-list" id="directoryList"></div>
+        </aside>
 
-          <div class="hud-label" style="margin-top: 14px;">Strike History</div>
+        <aside class="panel hud-panel history-panel" data-state="off">
+          <h2>Strike History</h2>
           <div class="strike-history" id="strikeHistory"></div>
         </aside>
       </div>
 
       <div class="hud-dock right">
-        <aside class="impact-panel hud-panel impact-summary">
-          <div class="panel" data-state="idle">
-            <h2>Impact Console</h2>
-            <p class="note">Live market response based on the active strike stack.</p>
-            <div class="hud-label">Time Horizon</div>
-            <div class="horizon-toggle" id="horizonToggle"></div>
-
-            <div class="hud-label" style="margin-top: 14px;">Aggregate Scorecard</div>
-            <div class="impact-grid" id="impactGrid"></div>
-            <p class="impact-note" id="impactNote"></p>
-          </div>
-        </aside>
-
         <aside class="impact-panel hud-panel impact-assets">
           <div class="panel" data-state="idle">
             <h2>Market Tape</h2>
             <div class="hud-label">Top Impacted Assets</div>
-            <div class="asset-list" id="assetList"></div>
-
-            <div class="hud-label" style="margin-top: 14px;">Sector Baskets</div>
-            <div class="asset-list" id="basketList"></div>
+            <div class="asset-scroll">
+              <div class="asset-list" id="assetList"></div>
+            </div>
 
             <div class="hud-label" style="margin-top: 14px;">Selected Strike Brief</div>
-            <div id="strikeBrief"></div>
+            <div class="brief-scroll" id="strikeBrief"></div>
           </div>
         </aside>
       </div>
     </main>
+    <div class="impact-bar">
+      <h4>Impact Console</h4>
+      <div class="impact-bar-grid" id="impactBarGrid"></div>
+      <div class="impact-bar-note" id="impactNote"></div>
+      <div class="horizon-toggle" id="horizonToggle"></div>
+    </div>
     <div class="hud-compass">
       <span class="tick">W</span>
       <span class="tick">NW</span>
@@ -1745,24 +1814,28 @@
     }
 
     function renderAggregate() {
-      const grid = document.getElementById("impactGrid");
-      grid.innerHTML = METRICS.map((metric) => {
-        const value = state.aggregates[metric.key] || 0;
-        const cls = value > 0.4 ? "impact-up" : value < -0.4 ? "impact-down" : "impact-neutral";
-        return `
-          <div class="impact-tile">
-            <small>${metric.label}</small>
-            <strong class="${cls}">${formatImpact(value)}</strong>
-          </div>
-        `;
-      }).join("");
+      const grid = document.getElementById("impactBarGrid");
+      if (grid) {
+        grid.innerHTML = METRICS.map((metric) => {
+          const value = state.aggregates[metric.key] || 0;
+          const cls = value > 0.4 ? "impact-up" : value < -0.4 ? "impact-down" : "impact-neutral";
+          return `
+            <div class="impact-chip">
+              <span>${metric.label}</span>
+              <strong class="${cls}">${formatImpact(value)}</strong>
+            </div>
+          `;
+        }).join("");
+      }
 
       const totalScore = Object.values(state.assets).reduce((acc, val) => acc + Math.abs(val), 0);
       const impactNote = document.getElementById("impactNote");
-      if (state.stack.length === 0) {
-        impactNote.textContent = "Apply strikes to build a sequential impact score based on historical shock curves.";
-      } else {
-        impactNote.textContent = `Aggregate Impact Score: ${totalScore.toFixed(1)} · ${state.stack.length} sequential strikes.`;
+      if (impactNote) {
+        if (state.stack.length === 0) {
+          impactNote.textContent = "Apply strikes to build a sequential impact score.";
+        } else {
+          impactNote.textContent = `Impact Score ${totalScore.toFixed(1)} · ${state.stack.length} strikes`;
+        }
       }
     }
 
@@ -1800,6 +1873,7 @@
 
     function renderBaskets() {
       const list = document.getElementById("basketList");
+      if (!list) return;
       const baskets = Object.entries(state.assets)
         .map(([key, value]) => ({ key, value, info: ASSETS[key] }))
         .filter((item) => item.info.class === "Basket")
@@ -1880,7 +1954,6 @@
       renderQueue();
       renderAggregate();
       renderAssets();
-      renderBaskets();
       renderStrikeBrief();
     }
 
