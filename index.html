@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Monitoring the Situation — Impact Simulator</title>
+  <title>Fantasy War — Trade Simulator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
@@ -578,6 +578,10 @@
       font-size: var(--ui-font-sm);
       color: var(--ink-dim);
       letter-spacing: 0.26em;
+    }
+
+    .mobile-title-block {
+      display: none;
     }
 
     .hud-compass {
@@ -1328,9 +1332,10 @@
       .layout {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        grid-template-rows: 50dvh auto minmax(0, 1fr);
+        grid-template-rows: 50dvh minmax(0, 1fr);
         gap: 8px;
         padding: 8px;
+        padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px) + 72px);
         overflow-y: auto;
         overscroll-behavior-y: contain;
       }
@@ -1348,6 +1353,8 @@
         width: 100%;
         height: 100%;
         min-height: 0;
+        min-width: 0;
+        padding-top: 58px;
         overflow-y: auto;
         overscroll-behavior: contain;
         -webkit-overflow-scrolling: touch;
@@ -1355,7 +1362,7 @@
 
       .hud-dock.left {
         grid-column: 1;
-        grid-row: 3;
+        grid-row: 2;
         display: grid;
         grid-template-rows: minmax(260px, 1fr) minmax(220px, 1fr);
         gap: 8px;
@@ -1363,7 +1370,7 @@
 
       .hud-dock.right {
         grid-column: 2;
-        grid-row: 3;
+        grid-row: 2;
       }
 
       .impact-assets,
@@ -1378,15 +1385,14 @@
       }
 
       .impact-bar {
-        position: relative;
-        left: auto;
-        right: auto;
-        top: auto;
-        grid-column: 1 / -1;
-        grid-row: 2;
+        position: fixed;
+        left: 8px;
+        right: 8px;
+        top: calc(50dvh + env(safe-area-inset-top, 0px) + 8px);
         grid-template-columns: minmax(0, 1fr);
         border-radius: 12px;
         padding: 7px 8px;
+        z-index: 13;
       }
 
       .impact-bar h4 {
@@ -1417,11 +1423,38 @@
         min-height: 0;
       }
 
+      .title-block {
+        display: none;
+      }
+
+      .mobile-title-block {
+        display: block;
+        position: fixed;
+        left: 10px;
+        top: calc(env(safe-area-inset-top, 0px) + 6px);
+        z-index: 14;
+        font-family: "Oxanium", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 10px;
+        color: #d7e7ff;
+        text-shadow: 0 0 10px rgba(37, 99, 235, 0.45);
+        pointer-events: none;
+        opacity: 0.92;
+      }
+
+      .mobile-title-block span {
+        display: block;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 9px;
+        color: #9cb1cd;
+        letter-spacing: 0.1em;
+      }
+
       .hud-compass,
       .hud-readouts,
       .hud-throttle,
-      .hud-horizon,
-      .title-block {
+      .hud-horizon {
         display: none;
       }
     }
@@ -1525,8 +1558,8 @@
   <div class="app">
     <div class="intro" id="introScreen">
       <div class="intro-card">
-        <h2>Welcome to Operation Epic Fury.</h2>
-        <p>Strike targets around the middle east to see the impact those strikes would have on the global economy.</p>
+        <h2>Welcome to Fantasy War</h2>
+        <p>You are now the GM of War. Simulate strikes across the middle east to see how they impact trade.</p>
         <button id="enterSim">Make Pete Proud</button>
       </div>
     </div>
@@ -1603,8 +1636,12 @@
     <div class="hud-throttle" id="hudThrottle"></div>
     <div class="hud-horizon"></div>
     <div class="title-block">
-      Monitoring the Situation
-      <span>and making it worse</span>
+      Fantasy War
+      <span>Trade Simulator</span>
+    </div>
+    <div class="mobile-title-block">
+      Fantasy War
+      <span>Trade Simulator</span>
     </div>
 
   </div>
