@@ -642,12 +642,23 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      pointer-events: none;
+    }
+
+    .top-right-controls {
+      position: fixed;
+      top: calc(env(safe-area-inset-top, 0px) + 12px);
+      right: calc(var(--hud-side) + 64px);
+      z-index: 15;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
       pointer-events: auto;
     }
 
     .hud-compass {
       position: absolute;
-      top: calc(var(--hud-side) + var(--impact-bar-height) + var(--utility-lane-height) + 14px);
+      top: calc(var(--hud-side) + var(--impact-bar-height) + 8px);
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -1770,6 +1781,11 @@
         display: none;
       }
 
+      .top-right-controls {
+        position: static;
+        display: contents;
+      }
+
       .share-toast {
         left: auto;
         top: auto;
@@ -1957,9 +1973,9 @@
       background: linear-gradient(180deg, rgba(35, 72, 155, 0.92), rgba(18, 41, 98, 0.92));
       color: #eaf2ff;
       border-radius: 999px;
-      padding: 8px 14px;
+      padding: 10px 18px;
       font-family: "IBM Plex Mono", monospace;
-      font-size: 11px;
+      font-size: 12px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       cursor: pointer;
@@ -1977,9 +1993,9 @@
       background: rgba(10, 16, 28, 0.9);
       color: #d6ecff;
       border-radius: 999px;
-      padding: 8px 11px;
+      padding: 9px 13px;
       font-family: "IBM Plex Mono", monospace;
-      font-size: 11px;
+      font-size: 12px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       cursor: pointer;
@@ -1995,8 +2011,8 @@
 
     .share-toast {
       position: fixed;
-      left: calc(var(--hud-side) + var(--left-width) + 12px);
-      top: calc(var(--hud-side) + var(--impact-bar-height) + var(--utility-lane-height) + 12px);
+      right: calc(var(--hud-side) + 64px);
+      top: calc(env(safe-area-inset-top, 0px) + 58px);
       z-index: 16;
       background: rgba(8, 12, 18, 0.9);
       color: #dbeafe;
@@ -2089,14 +2105,15 @@
       <div class="horizon-toggle" id="horizonToggle"></div>
     </div>
     <div class="hud-utility-lane">
-      <div class="hud-utility-left">
-        <button id="shareSim" class="share-btn" aria-label="Share simulator">Share</button>
-        <button id="impactSfxToggle" class="sfx-btn" aria-label="Toggle impact sound">SFX ON</button>
-      </div>
+      <div class="hud-utility-left"></div>
       <div class="hud-readouts">
         <div><span>ALT</span><strong id="hudAlt">0000</strong></div>
         <div><span>PIT</span><strong id="hudPitch">00°</strong></div>
       </div>
+    </div>
+    <div class="top-right-controls">
+      <button id="shareSim" class="share-btn" aria-label="Share simulator">Share</button>
+      <button id="impactSfxToggle" class="sfx-btn" aria-label="Toggle impact sound">SFX ON</button>
     </div>
     <div id="shareToast" class="share-toast" role="status" aria-live="polite"></div>
     <div class="hud-compass">
@@ -2126,6 +2143,7 @@
     const EXPLOSION_MEDIA_WEBP = "/assets/explosion-pixel.webp";
     const EXPLOSION_MEDIA_GIF = "/assets/explosion-pixel.gif";
     const IMPACT_SOUND_URL = "/assets/explosion-roll.mp3";
+    const BGM_SOUND_URL = "/assets/mw2-multiplayer-loop.mp3";
     const IMPACT_SFX_KEY = "fantasywar_sfx_muted";
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -2600,7 +2618,11 @@
         };
       });
       state.aggregates = METRICS.reduce((acc, metric) => {
-        acc[metric.key] = model.assets[metric.key] || 0;
+        if (metric.key === "gold") {
+          acc[metric.key] = (model.assets.gold || 0) + (model.assets.gld || 0);
+        } else {
+          acc[metric.key] = model.assets[metric.key] || 0;
+        }
         return acc;
       }, {});
     }
@@ -2910,6 +2932,7 @@
       resetStrike.addEventListener("click", () => {
         state.stack = [];
         state.selected = null;
+        clearPeteMarkers();
         recalculate();
         renderAll();
       });
@@ -2920,6 +2943,7 @@
       clearStrikes.addEventListener("click", () => {
         state.stack = [];
         state.selected = null;
+        clearPeteMarkers();
         recalculate();
         renderAll();
       });
@@ -3107,6 +3131,10 @@
     const impactAudio = new Audio(IMPACT_SOUND_URL);
     impactAudio.preload = "auto";
     impactAudio.volume = 0.62;
+    const bgmAudio = new Audio(BGM_SOUND_URL);
+    bgmAudio.preload = "auto";
+    bgmAudio.loop = true;
+    bgmAudio.volume = 0.12;
 
     let soundUnlocked = false;
     let sfxMuted = localStorage.getItem(IMPACT_SFX_KEY) === "1";
@@ -3156,6 +3184,10 @@
           impactAudio.pause();
           impactAudio.currentTime = 0;
           soundUnlocked = true;
+          if (!sfxMuted) {
+            const bgmPromise = bgmAudio.play();
+            if (bgmPromise && typeof bgmPromise.catch === "function") bgmPromise.catch(() => {});
+          }
         }).catch(() => {});
       }
     }
@@ -3180,6 +3212,14 @@
       impactSfxToggle.addEventListener("click", () => {
         sfxMuted = !sfxMuted;
         localStorage.setItem(IMPACT_SFX_KEY, sfxMuted ? "1" : "0");
+        if (sfxMuted) {
+          impactAudio.pause();
+          impactAudio.currentTime = 0;
+          bgmAudio.pause();
+        } else if (soundUnlocked) {
+          const bgmPromise = bgmAudio.play();
+          if (bgmPromise && typeof bgmPromise.catch === "function") bgmPromise.catch(() => {});
+        }
         updateSfxButton();
       });
     }
@@ -3217,6 +3257,11 @@
     function syncPeteMarkers() {
       if (!mapReady || !map) return;
       peteMarkers.forEach(positionPeteMarker);
+    }
+
+    function clearPeteMarkers() {
+      peteMarkers.forEach((marker) => marker?.el?.remove());
+      peteMarkers.length = 0;
     }
 
     function dropPeteMarker(lngLat, pixel) {
