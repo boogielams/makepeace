@@ -620,6 +620,61 @@
       pointer-events: none;
     }
 
+    .intro {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(5, 8, 12, 0.55);
+      backdrop-filter: blur(14px) saturate(1.2);
+    }
+
+    .intro.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .intro-card {
+      max-width: 520px;
+      padding: 28px 32px;
+      border-radius: 18px;
+      background: rgba(10, 12, 18, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+      text-align: center;
+    }
+
+    .intro-card h2 {
+      font-family: "Oxanium", sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #d6ecff;
+      margin-bottom: 14px;
+    }
+
+    .intro-card p {
+      color: var(--ink-dim);
+      line-height: 1.6;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .intro-card button {
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(37, 99, 235, 0.7);
+      background: linear-gradient(180deg, #2f6bff, #2250c8);
+      color: #f8fafc;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
 .panel h2 {
       font-family: "Oxanium", sans-serif;
       font-size: 15px;
@@ -1232,6 +1287,13 @@
 </head>
 <body>
   <div class="app">
+    <div class="intro" id="introScreen">
+      <div class="intro-card">
+        <h2>Welcome to Operation Epic Fury.</h2>
+        <p>Strike targets around the middle east to see the impact those strikes would have on the global economy.</p>
+        <button id="enterSim">Make Pete Proud</button>
+      </div>
+    </div>
     <main class="layout">
       <section class="map-panel">
         <div class="panel map-frame" data-state="active">
@@ -2189,6 +2251,15 @@
         updateFlightHud();
       }
     });
+
+    const introScreen = document.getElementById("introScreen");
+    const enterSim = document.getElementById("enterSim");
+    if (enterSim && introScreen) {
+      enterSim.addEventListener("click", () => {
+        introScreen.classList.add("hidden");
+        setTimeout(() => introScreen.remove(), 350);
+      });
+    }
 
     function positionPeteMarker(marker) {
       if (!mapReady || !map) return;
