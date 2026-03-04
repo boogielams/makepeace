@@ -1345,11 +1345,12 @@
       .layout {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        grid-template-rows: 50dvh minmax(250px, 1fr) minmax(220px, 1fr);
+        grid-template-rows: 50dvh minmax(0, 1fr);
         gap: 8px;
         padding: 8px;
         padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--mobile-impact-reserve));
-        overflow: hidden;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
       }
 
       .map-panel {
@@ -1360,7 +1361,30 @@
       }
 
       .hud-dock {
-        display: contents;
+        grid-row: 2;
+        display: grid;
+        grid-template-rows: minmax(250px, 58%) minmax(220px, 42%);
+        gap: 8px;
+        min-height: 0;
+        align-self: stretch;
+      }
+
+      .hud-dock.left {
+        grid-column: 1;
+      }
+
+      .hud-dock.right {
+        grid-column: 2;
+      }
+
+      .regions-panel,
+      .market-panel {
+        grid-row: 1;
+      }
+
+      .history-panel,
+      .brief-panel {
+        grid-row: 2;
       }
 
       .regions-panel,
@@ -1372,26 +1396,6 @@
         min-height: 0;
         margin: 0;
         align-self: stretch;
-      }
-
-      .regions-panel,
-      .history-panel {
-        grid-column: 1;
-      }
-
-      .market-panel,
-      .brief-panel {
-        grid-column: 2;
-      }
-
-      .regions-panel,
-      .market-panel {
-        grid-row: 2;
-      }
-
-      .history-panel,
-      .brief-panel {
-        grid-row: 3;
       }
 
       .market-section.assets,
@@ -1441,7 +1445,6 @@
         padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--mobile-impact-reserve));
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
-        touch-action: pan-y;
       }
 
       .regions-panel,
