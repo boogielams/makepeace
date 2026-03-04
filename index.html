@@ -1125,10 +1125,6 @@
       opacity: 0;
     }
 
-    .explosion picture {
-      display: block;
-    }
-
     .explosion .media-blast {
       position: absolute;
       left: 50%;
@@ -3273,10 +3269,7 @@
       const el = document.createElement("div");
       el.className = "explosion";
       el.innerHTML = `
-        <picture>
-          <source srcset="${EXPLOSION_MEDIA_WEBP}" type="image/webp">
-          <img class="media-blast" src="${EXPLOSION_MEDIA_GIF}" alt="" aria-hidden="true" loading="eager" decoding="async">
-        </picture>
+        <img class="media-blast" src="${EXPLOSION_MEDIA_GIF}" alt="" aria-hidden="true" loading="eager" decoding="async">
         <div class="core blast-core-pixel"></div>
         <div class="pixel-cloud">${pixelFragments}</div>
         <div class="ring ring-a"></div>
