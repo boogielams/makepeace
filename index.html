@@ -2287,11 +2287,31 @@
     function getLockedTarget() {
       if (!mapReady || !map) return null;
       const point = getReticlePoint();
-      const features = map.queryRenderedFeatures([point.x, point.y], { layers: ["strike-points"] });
-      if (features && features.length) {
-        return { id: features[0].properties?.id, point };
-      }
-      return null;
+      const radius = 24;
+      const bbox = [
+        [point.x - radius, point.y - radius],
+        [point.x + radius, point.y + radius]
+      ];
+      const features = map.queryRenderedFeatures(bbox, { layers: ["strike-points"] }) || [];
+      if (!features.length) return null;
+      let best = null;
+      let bestDist = Infinity;
+      features.forEach((feat) => {
+        const id = feat.properties?.id;
+        if (!id) return;
+        const lng = feat.geometry?.coordinates?.[0];
+        const lat = feat.geometry?.coordinates?.[1];
+        if (lng == null || lat == null) return;
+        const proj = map.project([lng, lat]);
+        const dx = proj.x - point.x;
+        const dy = proj.y - point.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = { id, point };
+        }
+      });
+      return best;
     }
 
     function updateReticleLock() {
