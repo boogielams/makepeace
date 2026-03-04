@@ -1345,7 +1345,7 @@
       .layout {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        grid-template-rows: 50dvh minmax(0, 1fr);
+        grid-template-rows: 50dvh minmax(250px, 1fr) minmax(220px, 1fr);
         gap: 8px;
         padding: 8px;
         padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--mobile-impact-reserve));
@@ -1361,53 +1361,38 @@
       }
 
       .hud-dock {
-        position: relative;
-        inset: auto;
+        display: contents;
+      }
+
+      .regions-panel,
+      .market-panel,
+      .history-panel,
+      .brief-panel {
         width: 100%;
         height: 100%;
         min-height: 0;
-        min-width: 0;
-        padding-top: 0;
-        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--mobile-impact-reserve));
-        overflow: hidden;
-        align-self: stretch;
-      }
-
-      .hud-dock.left {
-        grid-column: 1;
-        grid-row: 2;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .hud-dock.right {
-        grid-column: 2;
-        grid-row: 2;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        justify-content: flex-start;
-        align-items: stretch;
-      }
-
-      .hud-dock.left .regions-panel,
-      .hud-dock.right .market-panel {
-        flex: 1 1 58%;
-        min-height: 0;
-      }
-
-      .hud-dock.left .history-panel,
-      .hud-dock.right .brief-panel {
-        flex: 1 1 42%;
-        min-height: 0;
-      }
-
-      .hud-dock.right .market-panel,
-      .hud-dock.right .brief-panel {
-        width: 100%;
         margin: 0;
         align-self: stretch;
+      }
+
+      .regions-panel,
+      .history-panel {
+        grid-column: 1;
+      }
+
+      .market-panel,
+      .brief-panel {
+        grid-column: 2;
+      }
+
+      .regions-panel,
+      .market-panel {
+        grid-row: 2;
+      }
+
+      .history-panel,
+      .brief-panel {
+        grid-row: 3;
       }
 
       .market-section.assets,
