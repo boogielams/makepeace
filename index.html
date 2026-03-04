@@ -1345,12 +1345,11 @@
       .layout {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        grid-template-rows: 50dvh minmax(0, 1fr);
+        grid-template-rows: 42dvh minmax(0, 1fr);
         gap: 8px;
         padding: 8px;
-        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--mobile-impact-reserve));
-        overflow-y: auto;
-        overscroll-behavior-y: contain;
+        padding-bottom: 8px;
+        overflow: hidden;
       }
 
       .map-panel {
@@ -1363,7 +1362,7 @@
       .hud-dock {
         grid-row: 2;
         display: grid;
-        grid-template-rows: minmax(250px, 58%) minmax(220px, 42%);
+        grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
         gap: 8px;
         min-height: 0;
         align-self: stretch;
@@ -1445,6 +1444,8 @@
         padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--mobile-impact-reserve));
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
+        overflow-y: auto;
+        max-height: 100%;
       }
 
       .regions-panel,
