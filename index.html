@@ -291,13 +291,17 @@
 
     .hud-dock.right {
       right: 24px;
-      width: 320px;
-      top: 90px;
-      height: calc(100vh - 120px);
+      width: 340px;
+      top: 80px;
+      bottom: 24px;
+      height: auto;
     }
 
     .hud-dock.left {
       left: 24px;
+      top: 110px;
+      bottom: auto;
+      height: 60vh;
     }
 
     .hud-panel,
@@ -360,7 +364,6 @@
     .strike-history {
       flex: 1 1 auto;
       min-height: 0;
-      max-height: 180px;
       overflow: auto;
       padding-right: 6px;
     }
@@ -462,41 +465,45 @@
 
     .impact-assets .panel {
       height: 100%;
-      overflow: auto;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       gap: 12px;
+      min-height: 0;
     }
 
-    .impact-assets .panel::-webkit-scrollbar,
     .regions-panel .directory-list::-webkit-scrollbar,
-    .strike-history::-webkit-scrollbar {
+    .strike-history::-webkit-scrollbar,
+    .asset-list::-webkit-scrollbar,
+    .strike-brief::-webkit-scrollbar {
       width: 6px;
     }
 
-    .impact-assets .panel::-webkit-scrollbar-thumb,
     .regions-panel .directory-list::-webkit-scrollbar-thumb,
-    .strike-history::-webkit-scrollbar-thumb {
+    .strike-history::-webkit-scrollbar-thumb,
+    .asset-list::-webkit-scrollbar-thumb,
+    .strike-brief::-webkit-scrollbar-thumb {
       background: rgba(148, 163, 184, 0.45);
       border-radius: 999px;
     }
 
-    .impact-assets .panel::-webkit-scrollbar-track,
     .regions-panel .directory-list::-webkit-scrollbar-track,
-    .strike-history::-webkit-scrollbar-track {
+    .strike-history::-webkit-scrollbar-track,
+    .asset-list::-webkit-scrollbar-track,
+    .strike-brief::-webkit-scrollbar-track {
       background: rgba(8, 12, 18, 0.6);
     }
 
     .reticle-btn {
-      width: 34px;
-      height: 34px;
+      width: 30px;
+      height: 30px;
       padding: 0;
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border-radius: 10px;
+      border-radius: 8px;
     }
 
     .hud-readouts strong {
@@ -708,7 +715,7 @@
       gap: 10px;
       margin: 14px 0 12px;
       align-items: center;
-      max-width: 92%;
+      max-width: 100%;
     }
 
     .directory-search input {
@@ -737,6 +744,12 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
+    .directory-search button.reticle-btn {
+      padding: 0;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
     .directory-search button:hover {
       transform: translateY(-1px);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 10px 20px rgba(20, 40, 90, 0.55);
@@ -746,7 +759,6 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      max-height: 550px;
       overflow-y: auto;
       padding-right: 6px;
     }
@@ -1105,13 +1117,38 @@
     .impact-down { color: var(--red); }
     .impact-neutral { color: var(--ink-dim); }
 
+    .market-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+      flex: 1 1 0;
+    }
+
     .asset-list {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      max-height: 280px;
+      flex: 1 1 auto;
+      min-height: 0;
       overflow-y: auto;
       padding-right: 6px;
+    }
+
+    .strike-brief {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      padding-right: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .brief-assets {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .asset-item {
@@ -1333,6 +1370,9 @@
         <aside class="panel hud-panel history-panel" data-state="off">
           <h2>Strike History</h2>
           <div class="strike-history" id="strikeHistory"></div>
+          <div class="strike-actions" style="margin-top: 10px;">
+            <button id="clearStrikes" class="primary" style="width: 100%;">Clear All</button>
+          </div>
         </aside>
       </div>
 
@@ -1340,11 +1380,15 @@
         <aside class="impact-panel hud-panel impact-assets">
           <div class="panel" data-state="idle">
             <h2>Market Tape</h2>
-            <div class="hud-label">Top Impacted Assets</div>
-            <div class="asset-list" id="assetList"></div>
+            <div class="market-section">
+              <div class="hud-label">Top Impacted Assets</div>
+              <div class="asset-list" id="assetList"></div>
+            </div>
 
-            <div class="hud-label" style="margin-top: 14px;">Selected Strike Brief</div>
-            <div id="strikeBrief"></div>
+            <div class="market-section">
+              <div class="hud-label">Selected Strike Brief</div>
+              <div id="strikeBrief" class="strike-brief"></div>
+            </div>
           </div>
         </aside>
       </div>
@@ -1851,18 +1895,17 @@
         return;
       }
 
-      queue.innerHTML = state.stack.map((id, index) => {
-        const actualIndex = index;
+      const reversed = [...state.stack].reverse();
+      queue.innerHTML = reversed.map((id, index) => {
+        const actualIndex = state.stack.length - 1 - index;
         const event = SITES.find((loc) => loc.id === id);
         const log = state.impactLog[actualIndex];
         const multiplier = log ? log.multiplier : 1;
-        const damage = log ? log.damage : 100;
-        const strikeCount = log ? log.strike : 1;
         return `
           <div class="strike-item" data-id="${id}" data-index="${actualIndex}">
             <div>
               <strong>${event.name}</strong>
-              <span>Impact ${Math.round(multiplier * 100)}% · Damage ${damage}% · Strike ${strikeCount}</span>
+              <span>Market impact ${Math.round(multiplier * 100)}%</span>
             </div>
             <button aria-label="Remove">✕</button>
           </div>
@@ -2013,7 +2056,7 @@
 
       brief.innerHTML = `
         <p class="note">${event.summary}</p>
-        <div class="asset-list" style="margin-top: 10px;">${assetList}</div>
+        <div class="brief-assets">${assetList}</div>
       `;
     }
 
@@ -2089,6 +2132,16 @@
     const resetStrike = document.getElementById("resetStrike");
     if (resetStrike) {
       resetStrike.addEventListener("click", () => {
+        state.stack = [];
+        state.selected = null;
+        recalculate();
+        renderAll();
+      });
+    }
+
+    const clearStrikes = document.getElementById("clearStrikes");
+    if (clearStrikes) {
+      clearStrikes.addEventListener("click", () => {
         state.stack = [];
         state.selected = null;
         recalculate();
@@ -2389,7 +2442,7 @@
         const dist = Math.hypot(dx, dy);
         if (dist < bestDist) {
           bestDist = dist;
-          best = { id, point };
+          best = { id, point: proj };
         }
       });
       return best;
