@@ -395,6 +395,22 @@
       min-height: 0;
     }
 
+    .market-panel,
+    .brief-panel {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      margin: 0;
+    }
+
+    .hud-dock.right .market-panel {
+      flex: 3 1 0;
+    }
+
+    .hud-dock.right .brief-panel {
+      flex: 2 1 0;
+    }
+
     .impact-bar {
       position: fixed;
       top: var(--hud-side);
@@ -491,14 +507,9 @@
       white-space: nowrap;
     }
 
-    .impact-assets .panel {
-      height: 100%;
-      max-height: 100%;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+    .market-panel,
+    .brief-panel {
       gap: 1vh;
-      min-height: 0;
     }
 
     .regions-panel .directory-list::-webkit-scrollbar,
@@ -1380,33 +1391,23 @@
         align-items: stretch;
       }
 
-      .hud-dock.left .regions-panel {
+      .hud-dock.left .regions-panel,
+      .hud-dock.right .market-panel {
         flex: 1 1 58%;
         min-height: 0;
       }
 
-      .hud-dock.left .history-panel {
+      .hud-dock.left .history-panel,
+      .hud-dock.right .brief-panel {
         flex: 1 1 42%;
         min-height: 0;
       }
 
-      .impact-assets,
-      .impact-assets .panel {
-        height: 100%;
-      }
-
-      .impact-panel {
-        display: flex;
-        min-height: 0;
+      .hud-dock.right .market-panel,
+      .hud-dock.right .brief-panel {
         width: 100%;
         margin: 0;
         align-self: stretch;
-      }
-
-      .impact-panel .panel {
-        flex: 1 1 auto;
-        width: 100%;
-        margin: 0;
       }
 
       .market-section.assets,
@@ -1451,7 +1452,8 @@
 
       .regions-panel,
       .history-panel,
-      .impact-assets .panel {
+      .market-panel,
+      .brief-panel {
         min-height: 0;
       }
 
@@ -1629,18 +1631,19 @@
       </div>
 
       <div class="hud-dock right">
-        <aside class="impact-panel hud-panel impact-assets">
-          <div class="panel" data-state="idle">
-            <h2>Market Tape</h2>
-            <div class="market-section assets">
-              <div class="hud-label">Top Impacted Assets</div>
-              <div class="asset-list" id="assetList"></div>
-            </div>
+        <aside class="panel hud-panel market-panel" data-state="idle">
+          <h2>Market Tape</h2>
+          <div class="market-section assets">
+            <div class="hud-label">Top Impacted Assets</div>
+            <div class="asset-list" id="assetList"></div>
+          </div>
+        </aside>
 
-            <div class="market-section brief">
-              <div class="hud-label">Selected Strike Brief</div>
-              <div id="strikeBrief" class="strike-brief"></div>
-            </div>
+        <aside class="panel hud-panel brief-panel" data-state="off">
+          <h2>Strike Brief</h2>
+          <div class="market-section brief">
+            <div class="hud-label">Selected Strike Brief</div>
+            <div id="strikeBrief" class="strike-brief"></div>
           </div>
         </aside>
       </div>
