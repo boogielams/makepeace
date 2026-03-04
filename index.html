@@ -416,8 +416,10 @@
     .impact-chip {
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      min-height: 46px;
       gap: 2px;
-      padding: 6px 10px;
+      padding: 6px 12px;
       border-radius: 10px;
       background: rgba(15, 18, 26, 0.65);
       border: 1px solid rgba(148, 163, 184, 0.2);
@@ -430,10 +432,20 @@
       color: var(--ink-dim);
     }
 
-    .impact-bar-note {
+    .impact-meta {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 46px;
       font-size: 10px;
       color: var(--ink-dim);
-      max-width: 180px;
+      min-width: 140px;
+    }
+
+    .impact-meta strong {
+      color: #e2e8f0;
+      font-size: 12px;
+      letter-spacing: 0.1em;
     }
 
     .impact-bar .horizon-toggle {
@@ -1340,7 +1352,10 @@
     <div class="impact-bar">
       <h4>Impact Console</h4>
       <div class="impact-bar-grid" id="impactBarGrid"></div>
-      <div class="impact-bar-note" id="impactNote"></div>
+      <div class="impact-meta">
+        <span>Strikes</span>
+        <strong id="impactStrikes">0</strong>
+      </div>
       <div class="horizon-toggle" id="horizonToggle"></div>
     </div>
     <div class="hud-compass">
@@ -1887,13 +1902,9 @@
       }
 
       const totalScore = Object.values(state.assets).reduce((acc, val) => acc + Math.abs(val), 0);
-      const impactNote = document.getElementById("impactNote");
-      if (impactNote) {
-        if (state.stack.length === 0) {
-          impactNote.textContent = "Apply strikes to build a sequential impact score.";
-        } else {
-          impactNote.textContent = `Impact Score ${totalScore.toFixed(1)} · ${state.stack.length} strikes`;
-        }
+      const strikeCountEl = document.getElementById("impactStrikes");
+      if (strikeCountEl) {
+        strikeCountEl.textContent = String(state.stack.length);
       }
     }
 
