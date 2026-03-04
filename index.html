@@ -30,6 +30,16 @@
       --bezel-dark: #b6ad9f;
       --bezel-edge: rgba(255, 255, 255, 0.65);
       --screen-glow: rgba(120, 200, 255, 0.12);
+      --hud-side: 2vw;
+      --hud-gap: 1.2vh;
+      --impact-bar-height: 8vh;
+      --hud-top: calc(var(--impact-bar-height) + 2vh);
+      --panel-block: 20vh;
+      --market-height: 60vh;
+      --left-width: 20vw;
+      --right-width: 20vw;
+      --ui-font: clamp(4px, 0.9vw, 14px);
+      --ui-font-sm: clamp(3px, 0.75vw, 12px);
     }
 
     * {
@@ -43,6 +53,7 @@
       background: radial-gradient(circle at top, rgba(37, 99, 235, 0.18), transparent 40%),
         linear-gradient(150deg, #0a0a0f 0%, #0c0e18 50%, #08080f 100%);
       color: var(--ink);
+      font-size: var(--ui-font);
       min-height: 100vh;
       overflow: hidden;
     }
@@ -203,15 +214,6 @@
       font-size: 14px;
     }
 
-    :root {
-      --hud-side: 24px;
-      --hud-gap: 14px;
-      --impact-bar-height: 66px;
-      --hud-top: calc(var(--impact-bar-height) + 22px);
-      --panel-block: min(20vh, 240px);
-      --market-height: min(60vh, 560px);
-    }
-
     .layout {
       position: relative;
       flex: 1;
@@ -227,7 +229,7 @@
       background-blend-mode: soft-light, normal;
       border: 2px solid rgba(255, 255, 255, 0.08);
       border-radius: 8px;
-      padding: 22px 22px 26px;
+      padding: 1.6vh 1.4vw 2vh;
       box-shadow:
         0 18px 42px rgba(0, 0, 0, 0.65),
         inset 0 0 0 2px rgba(10, 12, 16, 0.9),
@@ -239,7 +241,7 @@
     .panel::before {
       content: "";
       position: absolute;
-      inset: 18px 18px 26px;
+      inset: 1.2vh 1.2vw 1.8vh;
       border-radius: 6px;
       background:
         radial-gradient(circle at 20% 15%, rgba(120, 200, 255, 0.18), transparent 55%),
@@ -290,32 +292,32 @@
     .hud-dock {
       position: absolute;
       top: var(--hud-top);
-      bottom: 24px;
+      bottom: 2vh;
       display: flex;
       flex-direction: column;
       gap: var(--hud-gap);
-      width: clamp(220px, 20vw, 280px);
+      width: var(--left-width);
       z-index: 5;
     }
 
     .hud-dock.right {
       right: var(--hud-side);
-      width: clamp(260px, 22vw, 320px);
+      width: var(--right-width);
       top: var(--hud-top);
-      bottom: 24px;
+      bottom: 2vh;
       height: auto;
     }
 
     .hud-dock.left {
       left: var(--hud-side);
       bottom: auto;
-      height: calc(var(--panel-block) + var(--panel-block) + var(--hud-gap));
+      height: calc(100vh - var(--hud-top) - 2vh);
     }
 
     .hud-panel,
     .strike-panel {
       width: 100%;
-      max-height: calc(100vh - 180px);
+      max-height: 100%;
       overflow: hidden;
       opacity: 0.9;
     }
@@ -332,7 +334,7 @@
       background: rgba(10, 12, 18, 0.78);
       border: 1px solid rgba(148, 163, 184, 0.25);
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
-      padding: 14px 14px 16px;
+      padding: 1.2vh 1vw 1.4vh;
     }
 
     .impact-panel .panel::before,
@@ -348,7 +350,7 @@
     }
 
     .hud-label {
-      font-size: 11px;
+      font-size: var(--ui-font-sm);
       letter-spacing: 0.24em;
       text-transform: uppercase;
       color: var(--ink-dim);
@@ -356,8 +358,7 @@
 
     .regions-panel,
     .history-panel {
-      flex: 0 0 auto;
-      height: var(--panel-block);
+      flex: 1 1 0;
       min-height: 0;
       display: flex;
       flex-direction: column;
@@ -380,7 +381,7 @@
     .strike-history .strike-item {
       border-color: rgba(148, 163, 184, 0.18);
       background: rgba(12, 15, 22, 0.65);
-      padding: 10px 12px;
+      padding: 1vh 0.9vw;
     }
 
     .impact-summary {
@@ -394,24 +395,29 @@
 
     .impact-bar {
       position: fixed;
-      top: 14px;
+      top: 2vh;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       align-items: center;
-      gap: 18px;
-      padding: 8px 16px;
+      gap: 1.2vw;
+      padding: 0.8vh 1.2vw;
       border-radius: 999px;
       background: rgba(8, 12, 18, 0.65);
       border: 1px solid rgba(148, 163, 184, 0.2);
       z-index: 7;
       backdrop-filter: blur(6px);
       min-height: var(--impact-bar-height);
+      width: calc(100vw - (var(--left-width) + var(--right-width) + 4 * var(--hud-side)));
+      max-width: calc(100vw - (var(--left-width) + var(--right-width) + 4 * var(--hud-side)));
+      flex-wrap: nowrap;
+      white-space: nowrap;
+      overflow: hidden;
     }
 
     .impact-bar h4 {
       font-family: "Oxanium", sans-serif;
-      font-size: 11px;
+      font-size: var(--ui-font-sm);
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: #d6ecff;
@@ -419,10 +425,10 @@
 
     .impact-bar-grid {
       display: grid;
-      grid-template-columns: repeat(5, auto);
-      gap: 10px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.8vw;
       font-family: "IBM Plex Mono", monospace;
-      font-size: 11px;
+      font-size: var(--ui-font-sm);
       color: #e2e8f0;
     }
 
@@ -430,46 +436,57 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 46px;
-      gap: 2px;
-      padding: 6px 12px;
+      min-height: 4.6vh;
+      gap: 0.2vh;
+      padding: 0.5vh 0.8vw;
       border-radius: 10px;
       background: rgba(15, 18, 26, 0.65);
       border: 1px solid rgba(148, 163, 184, 0.2);
     }
 
     .impact-chip span {
-      font-size: 9px;
+      font-size: var(--ui-font-sm);
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--ink-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .impact-chip strong {
+      font-size: var(--ui-font);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .impact-meta {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 46px;
-      font-size: 10px;
+      min-height: 4.6vh;
+      font-size: var(--ui-font-sm);
       color: var(--ink-dim);
-      min-width: 140px;
+      min-width: 10vw;
+      white-space: nowrap;
     }
 
     .impact-meta strong {
       color: #e2e8f0;
-      font-size: 12px;
+      font-size: var(--ui-font);
       letter-spacing: 0.1em;
     }
 
     .impact-bar .horizon-toggle {
       display: flex;
-      gap: 6px;
+      gap: 0.6vw;
     }
 
     .impact-bar .horizon-toggle button {
-      padding: 6px 10px;
+      padding: 0.6vh 0.8vw;
       border-radius: 999px;
-      font-size: 10px;
+      font-size: var(--ui-font-sm);
       letter-spacing: 0.12em;
     }
 
@@ -479,7 +496,7 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 1vh;
       min-height: 0;
     }
 
@@ -506,10 +523,10 @@
     }
 
     .reticle-btn {
-      width: 30px;
-      height: 30px;
+      width: clamp(10px, 2.2vw, 30px);
+      height: clamp(10px, 2.2vw, 30px);
       padding: 0;
-      font-size: 14px;
+      font-size: var(--ui-font);
       font-weight: 600;
       display: inline-flex;
       align-items: center;
@@ -529,7 +546,7 @@
       background: rgba(10, 12, 18, 0.78);
       border: 1px solid rgba(148, 163, 184, 0.25);
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
-      padding: 14px 14px 16px;
+      padding: 1.2vh 1vw 1.4vh;
     }
 
     .hud-panel.panel::before,
@@ -544,13 +561,13 @@
 
     .title-block {
       position: fixed;
-      left: 24px;
-      top: 20px;
+      left: var(--hud-side);
+      top: 2vh;
       z-index: 6;
       text-transform: uppercase;
       letter-spacing: 0.2em;
       font-family: "Oxanium", sans-serif;
-      font-size: 12px;
+      font-size: var(--ui-font);
       color: #d7e7ff;
       text-shadow: 0 0 18px rgba(37, 99, 235, 0.4);
       opacity: 0.9;
@@ -558,26 +575,26 @@
 
     .title-block span {
       display: block;
-      margin-top: 6px;
-      font-size: 10px;
+      margin-top: 0.6vh;
+      font-size: var(--ui-font-sm);
       color: var(--ink-dim);
       letter-spacing: 0.26em;
     }
 
     .hud-compass {
       position: absolute;
-      top: 18px;
+      top: 2vh;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 8px 14px;
+      gap: 1vw;
+      padding: 0.7vh 1vw;
       border-radius: 999px;
       background: rgba(8, 12, 18, 0.5);
       border: 1px solid rgba(148, 163, 184, 0.2);
       font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
+      font-size: var(--ui-font);
       letter-spacing: 0.18em;
       color: #d7e7ff;
       z-index: 6;
@@ -586,22 +603,22 @@
 
     .hud-compass .tick {
       opacity: 0.6;
-      font-size: 10px;
+      font-size: var(--ui-font-sm);
     }
 
     .hud-readouts {
       position: absolute;
-      right: 24px;
-      bottom: 18px;
+      right: var(--hud-side);
+      bottom: 2vh;
       display: grid;
       grid-template-columns: repeat(2, auto);
-      gap: 12px;
-      padding: 8px 12px;
+      gap: 0.8vw;
+      padding: 0.7vh 1vw;
       border-radius: 10px;
       background: rgba(8, 12, 18, 0.5);
       border: 1px solid rgba(148, 163, 184, 0.2);
       font-family: "IBM Plex Mono", monospace;
-      font-size: 11px;
+      font-size: var(--ui-font-sm);
       letter-spacing: 0.14em;
       color: #d7e7ff;
       z-index: 6;
@@ -610,21 +627,22 @@
 
     .hud-readouts span {
       color: var(--ink-dim);
-      font-size: 9px;
+      font-size: var(--ui-font-sm);
       display: block;
     }
 
     .hud-throttle {
       position: absolute;
-      left: 24px;
-      bottom: 90px;
-      width: 10px;
-      height: 120px;
+      left: var(--hud-side);
+      bottom: 12vh;
+      width: 1vw;
+      height: 16vh;
       border-radius: 999px;
       background: rgba(8, 12, 18, 0.5);
       border: 1px solid rgba(148, 163, 184, 0.2);
       overflow: hidden;
       z-index: 6;
+      min-width: 6px;
     }
 
     .hud-throttle::after {
@@ -642,8 +660,8 @@
       position: absolute;
       left: 50%;
       top: 50%;
-      width: 280px;
-      height: 2px;
+      width: 22vw;
+      height: 0.25vh;
       background: rgba(255, 255, 255, 0.2);
       transform: translate(-50%, -50%);
       z-index: 6;
@@ -707,24 +725,24 @@
 
 .panel h2 {
       font-family: "Oxanium", sans-serif;
-      font-size: 15px;
+      font-size: calc(var(--ui-font) + 1px);
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      margin-bottom: 8px;
+      margin-bottom: 0.8vh;
       color: #d6ecff;
       text-shadow: 0 0 12px rgba(120, 200, 255, 0.35);
     }
 
     .panel .note {
-      font-size: 12px;
+      font-size: var(--ui-font-sm);
       color: #a9bdd3;
       line-height: 1.5;
     }
 
     .directory-search {
       display: flex;
-      gap: 10px;
-      margin: 14px 0 12px;
+      gap: 0.8vw;
+      margin: 1.2vh 0 1vh;
       align-items: center;
       max-width: 100%;
     }
@@ -734,22 +752,22 @@
       background: var(--bg-panel-2);
       border: 1px solid var(--stroke);
       border-radius: 10px;
-      padding: 8px 10px;
+      padding: 0.8vh 0.8vw;
       color: var(--ink);
       font-family: "IBM Plex Mono", monospace;
-      font-size: 11px;
+      font-size: var(--ui-font-sm);
     }
 
     .directory-search button {
       background: linear-gradient(180deg, #2f6bff, #2250c8);
       border: 1px solid rgba(80, 140, 255, 0.7);
       border-radius: 10px;
-      padding: 8px 12px;
+      padding: 0.8vh 0.8vw;
       color: #f8fafc;
       font-weight: 600;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      font-size: 11px;
+      font-size: var(--ui-font-sm);
       cursor: pointer;
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 6px 16px rgba(20, 40, 90, 0.5);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -777,7 +795,7 @@
     .directory-item {
       border: 1px solid var(--stroke);
       border-radius: 12px;
-      padding: 10px 12px;
+      padding: 1vh 0.9vw;
       background: var(--bg-panel-2);
       cursor: pointer;
       transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
@@ -796,14 +814,14 @@
 
     .directory-item strong {
       display: block;
-      font-size: 13px;
+      font-size: var(--ui-font);
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }
 
     .directory-item span {
       color: var(--ink-dim);
-      font-size: 11px;
+      font-size: var(--ui-font-sm);
       display: block;
       margin-top: 4px;
       line-height: 1.35;
@@ -1050,12 +1068,12 @@
     .strike-item {
       border: 1px solid var(--stroke);
       border-radius: 12px;
-      padding: 10px 12px;
+      padding: 1vh 0.9vw;
       background: var(--bg-panel-2);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 0.8vw;
       position: relative;
     }
 
@@ -1070,16 +1088,16 @@
     }
 
     .strike-item strong {
-      font-size: 13px;
+      font-size: var(--ui-font);
       text-transform: uppercase;
       letter-spacing: 0.1em;
     }
 
     .strike-item span {
-      font-size: 11px;
+      font-size: var(--ui-font-sm);
       color: var(--ink-dim);
       display: block;
-      margin-top: 2px;
+      margin-top: 0.3vh;
     }
 
     .strike-item button {
@@ -1148,43 +1166,49 @@
     .market-section {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 0.6vh;
       min-height: 0;
-      flex: 0 0 auto;
+      flex: 1 1 0;
+    }
+
+    .market-section.assets {
+      flex: 2 1 0;
+    }
+
+    .market-section.brief {
+      flex: 1 1 0;
     }
 
     .asset-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      flex: 0 0 auto;
+      gap: 0.6vh;
+      flex: 1 1 auto;
       min-height: 0;
       overflow-y: auto;
       padding-right: 6px;
-      max-height: 32vh;
     }
 
     .strike-brief {
-      flex: 0 0 auto;
+      flex: 1 1 auto;
       min-height: 0;
       overflow-y: auto;
       padding-right: 6px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      max-height: 22vh;
+      gap: 0.6vh;
     }
 
     .brief-assets {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 0.6vh;
     }
 
     .asset-item {
       border: 1px solid var(--stroke);
       border-radius: 10px;
-      padding: 8px 10px;
+      padding: 0.8vh 0.9vw;
       background: var(--bg-panel-2);
     }
 
@@ -1197,17 +1221,17 @@
 
     .asset-item strong {
       font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
+      font-size: var(--ui-font);
     }
 
     .asset-item span {
-      font-size: 10px;
+      font-size: var(--ui-font-sm);
       color: var(--ink-dim);
     }
 
     .asset-item p {
-      margin-top: 4px;
-      font-size: 10px;
+      margin-top: 0.4vh;
+      font-size: var(--ui-font-sm);
       color: var(--ink-dim);
       line-height: 1.35;
     }
@@ -1345,93 +1369,6 @@
       border-radius: 50%;
     }
 
-@media (max-width: 1300px) {
-      .hud-dock.left {
-        width: clamp(220px, 26vw, 280px);
-      }
-
-      .hud-dock.right {
-        width: clamp(300px, 34vw, 360px);
-      }
-
-      .impact-bar {
-        transform: translateX(-50%) scale(0.94);
-      }
-    }
-
-@media (max-width: 1100px) {
-      :root {
-        --hud-side: 16px;
-        --hud-gap: 10px;
-        --impact-bar-height: 58px;
-        --panel-block: min(20vh, 200px);
-        --market-height: min(58vh, 460px);
-      }
-
-      .hud-dock {
-        width: clamp(200px, 22vw, 250px);
-      }
-
-      .hud-dock.right {
-        width: clamp(240px, 26vw, 300px);
-      }
-
-      .impact-bar {
-        transform: translateX(-50%) scale(0.9);
-      }
-
-      .impact-bar-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .panel {
-        padding: 16px 16px 18px;
-      }
-
-      .title-block {
-        font-size: 11px;
-      }
-    }
-
-@media (max-width: 720px) {
-      :root {
-        --hud-side: 12px;
-        --hud-gap: 8px;
-        --impact-bar-height: 54px;
-        --panel-block: min(18vh, 170px);
-        --market-height: min(56vh, 380px);
-      }
-
-      .impact-bar {
-        transform: translateX(-50%) scale(0.84);
-      }
-
-      .impact-bar-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .impact-chip {
-        min-height: 36px;
-        padding: 4px 8px;
-      }
-
-      .impact-chip strong {
-        font-size: 11px;
-      }
-
-      .hud-dock {
-        width: clamp(170px, 24vw, 220px);
-      }
-
-      .hud-dock.right {
-        width: clamp(210px, 28vw, 260px);
-      }
-
-      .title-block {
-        font-size: 10px;
-        letter-spacing: 0.18em;
-      }
-    }
   </style>
 </head>
 <body>
@@ -1480,12 +1417,12 @@
         <aside class="impact-panel hud-panel impact-assets">
           <div class="panel" data-state="idle">
             <h2>Market Tape</h2>
-            <div class="market-section">
+            <div class="market-section assets">
               <div class="hud-label">Top Impacted Assets</div>
               <div class="asset-list" id="assetList"></div>
             </div>
 
-            <div class="market-section">
+            <div class="market-section brief">
               <div class="hud-label">Selected Strike Brief</div>
               <div id="strikeBrief" class="strike-brief"></div>
             </div>
