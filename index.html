@@ -2002,7 +2002,7 @@
     };
 
     const directoryList = document.getElementById("directoryList");
-    document.getElementById("directoryOptions").innerHTML = SITE_BASE.map((loc) => `<option value="${loc.name}"></option>`).join("");
+    const directoryOptions = document.getElementById("directoryOptions");
 
     const horizonToggle = document.getElementById("horizonToggle");
     horizonToggle.innerHTML = HORIZONS.map((horizon) => `
@@ -2167,8 +2167,22 @@
       return `${sign}${value.toFixed(1)}%`;
     }
 
+    function getAvailableSites() {
+      return SITES.filter((loc) => !state.stack.includes(loc.id));
+    }
+
     function renderDirectory() {
-      directoryList.innerHTML = SITES.map((loc) => {
+      const availableSites = getAvailableSites();
+      if (directoryOptions) {
+        directoryOptions.innerHTML = availableSites.map((loc) => `<option value="${loc.name}"></option>`).join("");
+      }
+
+      if (availableSites.length === 0) {
+        directoryList.innerHTML = `<p class="note">All regions have been struck. Use Clear All to reset the flight deck.</p>`;
+        return;
+      }
+
+      directoryList.innerHTML = availableSites.map((loc) => {
         const active = state.selected === loc.id ? "active" : "";
         const impactKeys = [...new Set((loc.assets || []).map((impact) => ASSET_SECTORS[impact.assetId] || "macro"))];
         const impactLabels = impactKeys.slice(0, 3).map((key) => SECTOR_LABELS[key] || key.toUpperCase()).join(", ");
@@ -2410,7 +2424,7 @@
 
     document.getElementById("directoryAdd").addEventListener("click", () => {
       const input = document.getElementById("directorySearch");
-      const match = SITES.find((loc) => loc.name.toLowerCase() === input.value.trim().toLowerCase());
+      const match = getAvailableSites().find((loc) => loc.name.toLowerCase() === input.value.trim().toLowerCase());
       if (match) applyStrike(match.id);
       input.value = "";
     });
