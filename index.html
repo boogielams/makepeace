@@ -1349,8 +1349,7 @@
         gap: 8px;
         padding: 8px;
         padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--mobile-impact-reserve));
-        overflow-y: auto;
-        overscroll-behavior-y: contain;
+        overflow: hidden;
       }
 
       .map-panel {
@@ -1440,6 +1439,9 @@
       .strike-history,
       .strike-brief {
         padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--mobile-impact-reserve));
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        touch-action: pan-y;
       }
 
       .regions-panel,
