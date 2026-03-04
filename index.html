@@ -1328,9 +1328,11 @@
       .layout {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        grid-template-rows: 50dvh minmax(0, 1fr);
+        grid-template-rows: 50dvh auto minmax(0, 1fr);
         gap: 8px;
         padding: 8px;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
       }
 
       .map-panel {
@@ -1346,19 +1348,22 @@
         width: 100%;
         height: 100%;
         min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
       }
 
       .hud-dock.left {
         grid-column: 1;
-        grid-row: 2;
+        grid-row: 3;
         display: grid;
-        grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-rows: minmax(260px, 1fr) minmax(220px, 1fr);
         gap: 8px;
       }
 
       .hud-dock.right {
         grid-column: 2;
-        grid-row: 2;
+        grid-row: 3;
       }
 
       .impact-assets,
@@ -1373,11 +1378,15 @@
       }
 
       .impact-bar {
-        left: 8px;
-        right: 8px;
-        top: 8px;
+        position: relative;
+        left: auto;
+        right: auto;
+        top: auto;
+        grid-column: 1 / -1;
+        grid-row: 2;
         grid-template-columns: minmax(0, 1fr);
         border-radius: 12px;
+        padding: 7px 8px;
       }
 
       .impact-bar h4 {
@@ -1385,16 +1394,27 @@
       }
 
       .impact-bar-grid {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .impact-chip {
+        min-height: 44px;
+        padding: 5px 7px;
+      }
+
+      .impact-chip span {
+        letter-spacing: 0.12em;
       }
 
       .impact-meta,
       .impact-bar .horizon-toggle {
-        justify-self: stretch;
+        display: none;
       }
 
-      .impact-bar .horizon-toggle button {
-        flex: 1;
+      .regions-panel,
+      .history-panel,
+      .impact-assets .panel {
+        min-height: 0;
       }
 
       .hud-compass,
@@ -1407,8 +1427,9 @@
     }
 
     @media (max-width: 620px) {
-      .impact-bar-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+      .layout {
+        gap: 6px;
+        padding: 6px;
       }
     }
 
@@ -1890,6 +1911,7 @@
       { key: "spx", label: "S&P 500" },
       { key: "vix", label: "VIX" }
     ];
+    const MOBILE_METRIC_KEYS = new Set(["brent", "spx", "vix"]);
 
     const HORIZONS = [
       { id: "intraday", label: "Intraday", multiplier: 1.0 },
@@ -2142,8 +2164,10 @@
 
     function renderAggregate() {
       const grid = document.getElementById("impactBarGrid");
+      const isMobile = window.matchMedia("(max-width: 980px)").matches;
+      const activeMetrics = isMobile ? METRICS.filter((metric) => MOBILE_METRIC_KEYS.has(metric.key)) : METRICS;
       if (grid) {
-        grid.innerHTML = METRICS.map((metric) => {
+        grid.innerHTML = activeMetrics.map((metric) => {
           const value = state.aggregates[metric.key] || 0;
           const cls = value > 0.4 ? "impact-up" : value < -0.4 ? "impact-down" : "impact-neutral";
           return `
@@ -2717,7 +2741,10 @@
       syncSubtitleWidth();
     });
     window.addEventListener("load", syncSubtitleWidth);
-    window.addEventListener("resize", syncSubtitleWidth);
+    window.addEventListener("resize", () => {
+      syncSubtitleWidth();
+      renderAggregate();
+    });
   </script>
 </body>
 </html>
