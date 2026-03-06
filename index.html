@@ -1974,9 +1974,10 @@
       border-radius: 0;
       background: transparent;
       border: none;
-      box-shadow: 0 0 10px rgba(255, 173, 64, 0.35);
+      box-shadow: none;
       overflow: hidden;
       pointer-events: none;
+      isolation: isolate;
     }
 
     .pete-marker img {
@@ -1984,6 +1985,9 @@
       height: 100%;
       object-fit: contain;
       border-radius: 0;
+      image-rendering: pixelated;
+      mix-blend-mode: screen;
+      filter: contrast(1.32) saturate(1.18) brightness(1.06);
     }
 
     .share-btn {
