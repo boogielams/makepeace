@@ -799,6 +799,17 @@
       margin-bottom: 14px;
     }
 
+    .intro-icon {
+      width: min(24vw, 118px);
+      height: auto;
+      display: block;
+      margin: 0 auto 10px;
+      image-rendering: auto;
+      filter: drop-shadow(0 10px 20px rgba(255, 120, 32, 0.3));
+      pointer-events: none;
+      user-select: none;
+    }
+
     .intro-card p {
       color: var(--ink-dim);
       line-height: 1.6;
@@ -2207,6 +2218,7 @@
   <div class="app">
     <div class="intro" id="introScreen">
       <div class="intro-card">
+        <img class="intro-icon" src="/assets/intro-timebomb.png" alt="" aria-hidden="true" />
         <h2>Welcome to Fantasy War</h2>
         <p>You are now the GM of War. Simulate strikes across the middle east to see how they impact trade.</p>
         <button id="enterSim">Drop Your Load</button>
