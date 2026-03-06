@@ -796,8 +796,8 @@
       position: absolute;
       left: 50%;
       top: 50%;
-      width: clamp(160px, 20vw, 220px);
-      height: clamp(160px, 20vw, 220px);
+      width: clamp(280px, 32vw, 460px);
+      height: clamp(280px, 32vw, 460px);
       transform: translate(-50%, -50%) scale(0.08);
       transform-origin: center;
       opacity: 0;
@@ -808,8 +808,27 @@
       z-index: 2;
     }
 
+    .intro-card button::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: clamp(180px, 24vw, 320px);
+      height: clamp(180px, 24vw, 320px);
+      transform: translate(-50%, -50%) scale(0.2);
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(255, 239, 170, 0.92) 0 30%, rgba(255, 176, 86, 0.55) 45%, rgba(255, 130, 72, 0.2) 70%, transparent 84%);
+      z-index: 1;
+    }
+
     .intro-card button.detonating::after {
-      animation: introBtnBlast 720ms steps(8, end) forwards;
+      animation: introBtnBlast 1080ms steps(12, end) forwards;
+    }
+
+    .intro-card button.detonating::before {
+      animation: introBtnFlash 420ms ease-out forwards;
     }
 
     .intro-card button.detonating {
@@ -821,16 +840,31 @@
         opacity: 0;
         transform: translate(-50%, -50%) scale(0.08);
       }
-      18% {
-        opacity: 0.95;
+      12% {
+        opacity: 1;
       }
-      64% {
-        opacity: 0.85;
-        transform: translate(-50%, -50%) scale(1);
+      58% {
+        opacity: 0.94;
+        transform: translate(-50%, -50%) scale(1.32);
       }
       100% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(1.25);
+        transform: translate(-50%, -50%) scale(1.88);
+      }
+    }
+
+    @keyframes introBtnFlash {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.22);
+      }
+      42% {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(1.18);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.45);
       }
     }
 
@@ -842,11 +876,13 @@
 
     @keyframes introCardShake {
       0% { transform: translate3d(0, 0, 0); }
-      16% { transform: translate3d(-8px, 2px, 0); }
-      32% { transform: translate3d(7px, -2px, 0); }
-      48% { transform: translate3d(-6px, 1px, 0); }
-      64% { transform: translate3d(5px, -1px, 0); }
-      82% { transform: translate3d(-3px, 0, 0); }
+      12% { transform: translate3d(-13px, 3px, 0); }
+      24% { transform: translate3d(12px, -3px, 0); }
+      36% { transform: translate3d(-10px, 2px, 0); }
+      48% { transform: translate3d(9px, -2px, 0); }
+      62% { transform: translate3d(-7px, 1px, 0); }
+      76% { transform: translate3d(5px, -1px, 0); }
+      90% { transform: translate3d(-3px, 0, 0); }
       100% { transform: translate3d(0, 0, 0); }
     }
 
@@ -3220,17 +3256,17 @@
         if (introLaunching) return;
         introLaunching = true;
         unlockImpactAudio();
-        playImpactSound();
+        playImpactSound({ force: true, volume: 0.9 });
         if (introCard && !prefersReducedMotion) {
           introCard.classList.remove("shaking");
           void introCard.offsetWidth;
           introCard.classList.add("shaking");
-          setTimeout(() => introCard.classList.remove("shaking"), 560);
+          setTimeout(() => introCard.classList.remove("shaking"), 760);
         }
         enterSim.classList.remove("detonating");
         void enterSim.offsetWidth;
         enterSim.classList.add("detonating");
-        const introDismissDelay = prefersReducedMotion ? 120 : 520;
+        const introDismissDelay = prefersReducedMotion ? 120 : 760;
         const introRemoveDelay = prefersReducedMotion ? 180 : 350;
         setTimeout(() => {
         introScreen.classList.add("hidden");
@@ -3306,12 +3342,20 @@
       }
     }
 
-    function playImpactSound() {
-      if (sfxMuted || !soundUnlocked) return;
+    function playImpactSound(options = {}) {
+      const { force = false, volume = impactAudio.volume } = options;
+      if (sfxMuted) return;
+      if (!force && !soundUnlocked) return;
       try {
+        const previousVolume = impactAudio.volume;
+        impactAudio.volume = Math.max(0, Math.min(1, volume));
         impactAudio.currentTime = 0;
         const promise = impactAudio.play();
         if (promise && typeof promise.catch === "function") promise.catch(() => {});
+        if (!soundUnlocked) soundUnlocked = true;
+        setTimeout(() => {
+          impactAudio.volume = previousVolume;
+        }, 800);
       } catch (err) {
         // ignore playback errors
       }
