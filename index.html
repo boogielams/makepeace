@@ -782,6 +782,58 @@
       letter-spacing: 0.16em;
       text-transform: uppercase;
       cursor: pointer;
+      position: relative;
+      isolation: isolate;
+      overflow: visible;
+    }
+
+    .intro-card button::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: clamp(160px, 20vw, 220px);
+      height: clamp(160px, 20vw, 220px);
+      transform: translate(-50%, -50%) scale(0.08);
+      transform-origin: center;
+      opacity: 0;
+      pointer-events: none;
+      background: url("/assets/explosion-pixel.gif") center / contain no-repeat;
+      image-rendering: pixelated;
+      mix-blend-mode: screen;
+      z-index: 2;
+    }
+
+    .intro-card button.detonating::after {
+      animation: introBtnBlast 720ms steps(8, end) forwards;
+    }
+
+    .intro-card button.detonating {
+      animation: introBtnKick 300ms ease;
+    }
+
+    @keyframes introBtnBlast {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.08);
+      }
+      18% {
+        opacity: 0.95;
+      }
+      64% {
+        opacity: 0.85;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.25);
+      }
+    }
+
+    @keyframes introBtnKick {
+      0% { transform: scale(1); }
+      30% { transform: scale(0.95); }
+      100% { transform: scale(1); }
     }
 
     .intro-disclaimer {
@@ -3146,10 +3198,21 @@
 
     const introScreen = document.getElementById("introScreen");
     const enterSim = document.getElementById("enterSim");
+    let introLaunching = false;
     if (enterSim && introScreen) {
-      enterSim.addEventListener("click", () => {
+      enterSim.addEventListener("click", (event) => {
+        event.preventDefault();
+        if (introLaunching) return;
+        introLaunching = true;
+        enterSim.classList.remove("detonating");
+        void enterSim.offsetWidth;
+        enterSim.classList.add("detonating");
+        const introDismissDelay = prefersReducedMotion ? 120 : 520;
+        const introRemoveDelay = prefersReducedMotion ? 180 : 350;
+        setTimeout(() => {
         introScreen.classList.add("hidden");
-        setTimeout(() => introScreen.remove(), 350);
+          setTimeout(() => introScreen.remove(), introRemoveDelay);
+        }, introDismissDelay);
       });
     }
 
