@@ -755,23 +755,6 @@
       text-align: center;
     }
 
-    .intro-pete {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      margin: 0 auto 14px;
-      border: 2px solid rgba(120, 220, 255, 0.65);
-      box-shadow: 0 0 26px rgba(37, 99, 235, 0.5);
-      overflow: hidden;
-      background: rgba(8, 12, 18, 0.95);
-    }
-
-    .intro-pete img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
     .intro-card h2 {
       font-family: "Oxanium", sans-serif;
       font-size: 22px;
@@ -798,25 +781,45 @@
       letter-spacing: 0.16em;
       text-transform: uppercase;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
     }
 
-    .enter-btn-icon {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.45);
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
-      flex: 0 0 auto;
+    .disclaimer-wrap {
+      position: fixed;
+      left: var(--hud-side);
+      bottom: var(--hud-side);
+      z-index: 14;
+      width: min(460px, calc(100vw - (var(--hud-side) * 2)));
+      pointer-events: auto;
+      font-family: "IBM Plex Sans", sans-serif;
     }
 
-    .enter-btn-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .disclaimer-wrap details {
+      background: rgba(8, 12, 18, 0.78);
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 10px;
+      padding: 8px 10px;
+      backdrop-filter: blur(6px);
+    }
+
+    .disclaimer-wrap summary {
+      cursor: pointer;
+      list-style: none;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #c6d4ea;
+      outline: none;
+    }
+
+    .disclaimer-wrap summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .disclaimer-wrap p {
+      margin-top: 8px;
+      font-size: 11px;
+      line-height: 1.45;
+      color: #9fb1c9;
     }
 
 .panel h2 {
@@ -1771,6 +1774,13 @@
         display: contents;
       }
 
+      .disclaimer-wrap {
+        left: 8px;
+        right: 8px;
+        width: auto;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + var(--vv-bottom-offset, 0px) + 136px);
+      }
+
       .share-toast {
         left: auto;
         top: auto;
@@ -2052,10 +2062,9 @@
   <div class="app">
     <div class="intro" id="introScreen">
       <div class="intro-card">
-        <div class="intro-pete"><img src="/assets/pete.png" alt="Pete" /></div>
         <h2>Welcome to Fantasy War</h2>
         <p>You are now the GM of War. Simulate strikes across the middle east to see how they impact trade.</p>
-        <button id="enterSim"><span class="enter-btn-icon"><img src="/assets/pete.png" alt="Pete" /></span>Make Pete Proud</button>
+        <button id="enterSim">Drop Your Load</button>
       </div>
     </div>
     <main class="layout">
@@ -2147,12 +2156,18 @@
       Fantasy War
       <span>Trade Simulator</span>
     </div>
+    <div class="disclaimer-wrap">
+      <details>
+        <summary>Disclaimer</summary>
+        <p>This is purely a simulation, based on past patterns and assumptions, and is not indicative of future performance or real-world outcomes. Not financial advice.</p>
+      </details>
+    </div>
 
   </div>
 
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
   <script>
-    const PETE_DATA_URL = "/assets/pete.png";
+    const PETE_DATA_URL = "/assets/campfire-gif-find-share-on-giphy_51.gif";
     const APP_URL = "https://isdadmadatme.vercel.app/";
     const EXPLOSION_MEDIA_WEBP = "/assets/explosion-pixel.webp";
     const EXPLOSION_MEDIA_GIF = "/assets/explosion-pixel.gif";
