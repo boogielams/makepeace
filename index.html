@@ -818,6 +818,10 @@
     }
 
     .intro-card button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
       padding: 8px 16px;
       border-radius: 999px;
       border: 1px solid rgba(37, 99, 235, 0.7);
@@ -830,6 +834,13 @@
       position: relative;
       isolation: isolate;
       overflow: visible;
+    }
+
+    .intro-btn-reticle {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 14px;
+      line-height: 1;
+      opacity: 0.95;
     }
 
     .intro-card button::after {
@@ -2219,9 +2230,9 @@
     <div class="intro" id="introScreen">
       <div class="intro-card">
         <img class="intro-icon" src="/assets/intro-timebomb.png" alt="" aria-hidden="true" />
-        <h2>Welcome to Fantasy War</h2>
+        <h2>Drop Your Load on the Charts</h2>
         <p>You are now the GM of War. Simulate strikes across the middle east to see how they impact trade.</p>
-        <button id="enterSim">Drop Your Load</button>
+        <button id="enterSim"><span class="intro-btn-reticle" aria-hidden="true">◎</span>Drop Your Load</button>
         <div class="intro-disclaimer">
           <details>
             <summary>Disclaimer</summary>
