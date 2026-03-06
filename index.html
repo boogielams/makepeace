@@ -837,10 +837,14 @@
     }
 
     .intro-btn-reticle {
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 14px;
-      line-height: 1;
-      opacity: 0.95;
+      width: 16px;
+      height: 16px;
+      display: inline-block;
+      object-fit: contain;
+      image-rendering: auto;
+      filter: drop-shadow(0 0 6px rgba(148, 197, 255, 0.6));
+      opacity: 0.98;
+      pointer-events: none;
     }
 
     .intro-card button::after {
@@ -2230,9 +2234,9 @@
     <div class="intro" id="introScreen">
       <div class="intro-card">
         <img class="intro-icon" src="/assets/intro-timebomb.png" alt="" aria-hidden="true" />
-        <h2>Drop Your Load on the Charts</h2>
+        <h2>Welcome to Fantasy War</h2>
         <p>You are now the GM of War. Simulate strikes across the middle east to see how they impact trade.</p>
-        <button id="enterSim"><span class="intro-btn-reticle" aria-hidden="true">◎</span>Drop Your Load</button>
+        <button id="enterSim"><img class="intro-btn-reticle" src="/assets/favicon-reticle.png" alt="" aria-hidden="true" />Drop Your Load on the Charts</button>
         <div class="intro-disclaimer">
           <details>
             <summary>Disclaimer</summary>
