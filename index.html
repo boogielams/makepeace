@@ -784,25 +784,22 @@
       cursor: pointer;
     }
 
-    .disclaimer-wrap {
-      position: fixed;
-      left: var(--hud-side);
-      bottom: var(--hud-side);
-      z-index: 14;
-      width: min(460px, calc(100vw - (var(--hud-side) * 2)));
-      pointer-events: auto;
+    .intro-disclaimer {
+      margin-top: 12px;
+      width: 100%;
       font-family: "IBM Plex Sans", sans-serif;
     }
 
-    .disclaimer-wrap details {
+    .intro-disclaimer details {
       background: rgba(8, 12, 18, 0.78);
       border: 1px solid rgba(148, 163, 184, 0.28);
       border-radius: 10px;
       padding: 8px 10px;
       backdrop-filter: blur(6px);
+      text-align: left;
     }
 
-    .disclaimer-wrap summary {
+    .intro-disclaimer summary {
       cursor: pointer;
       list-style: none;
       font-size: 11px;
@@ -812,11 +809,11 @@
       outline: none;
     }
 
-    .disclaimer-wrap summary::-webkit-details-marker {
+    .intro-disclaimer summary::-webkit-details-marker {
       display: none;
     }
 
-    .disclaimer-wrap p {
+    .intro-disclaimer p {
       margin-top: 8px;
       font-size: 11px;
       line-height: 1.45;
@@ -1775,11 +1772,8 @@
         display: contents;
       }
 
-      .disclaimer-wrap {
-        left: 8px;
-        right: 8px;
-        width: auto;
-        bottom: calc(env(safe-area-inset-bottom, 0px) + var(--vv-bottom-offset, 0px) + 136px);
+      .intro-disclaimer {
+        margin-top: 10px;
       }
 
       .share-toast {
@@ -2067,6 +2061,12 @@
         <h2>Welcome to Fantasy War</h2>
         <p>You are now the GM of War. Simulate strikes across the middle east to see how they impact trade.</p>
         <button id="enterSim">Drop Your Load</button>
+        <div class="intro-disclaimer">
+          <details>
+            <summary>Disclaimer</summary>
+            <p>This is purely a simulation, based on past patterns and assumptions, and is not indicative of future performance or real-world outcomes. Not financial advice.</p>
+          </details>
+        </div>
       </div>
     </div>
     <main class="layout">
@@ -2158,13 +2158,6 @@
       Fantasy War
       <span>Trade Simulator</span>
     </div>
-    <div class="disclaimer-wrap">
-      <details>
-        <summary>Disclaimer</summary>
-        <p>This is purely a simulation, based on past patterns and assumptions, and is not indicative of future performance or real-world outcomes. Not financial advice.</p>
-      </details>
-    </div>
-
   </div>
 
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
