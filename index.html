@@ -991,6 +991,43 @@
       color: #9fb1c9;
     }
 
+    .intro-disclaimer-ack {
+      margin-top: 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 11px;
+      color: #c7d6eb;
+      line-height: 1.35;
+    }
+
+    .intro-disclaimer-ack input {
+      margin-top: 2px;
+      accent-color: #2f6bff;
+    }
+
+    #enterSim:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      filter: grayscale(0.28);
+      box-shadow: none;
+    }
+
+    .disclaimer-chip {
+      border: 1px solid rgba(148, 163, 184, 0.42);
+      background: rgba(8, 12, 18, 0.88);
+      color: #c6d4ea;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.07em;
+      line-height: 1.35;
+      max-width: 260px;
+      text-transform: none;
+      pointer-events: auto;
+    }
+
 .panel h2 {
       font-family: "Oxanium", sans-serif;
       font-size: calc(var(--ui-font) + 1px);
@@ -1727,6 +1764,13 @@
       }
     }
 
+    @media (min-width: 981px) {
+      .history-panel,
+      .brief-panel {
+        transform: translateY(-4px);
+      }
+    }
+
     @media (max-width: 980px) {
       :root {
         --hud-side: 8px;
@@ -1941,6 +1985,10 @@
       .top-right-controls {
         position: static;
         display: contents;
+      }
+
+      .disclaimer-chip {
+        display: none;
       }
 
       .intro-disclaimer {
@@ -2238,9 +2286,13 @@
         <p>You are now the GM of War. Simulate strikes across the middle east to see how they impact trade.</p>
         <button id="enterSim"><img class="intro-btn-reticle" src="/assets/favicon-reticle.png" alt="" aria-hidden="true" />Drop Your Load</button>
         <div class="intro-disclaimer">
-          <details>
+          <details open>
             <summary>Disclaimer</summary>
             <p>This is purely a simulation, based on past patterns and assumptions, and is not indicative of future performance or real-world outcomes. Not financial advice.</p>
+            <label class="intro-disclaimer-ack">
+              <input id="disclaimerAck" type="checkbox" />
+              <span>I have read and understand this simulation disclaimer.</span>
+            </label>
           </details>
         </div>
       </div>
@@ -2314,6 +2366,9 @@
     </div>
     <div class="top-right-controls">
       <button id="shareSim" class="share-btn" aria-label="Share simulator">Share</button>
+      <div class="disclaimer-chip" role="note" aria-label="Simulation disclaimer">
+        This is purely a simulation based on past patterns and assumptions, and is not indicative of future performance or real-world outcomes. Not financial advice.
+      </div>
       <button id="impactSfxToggle" class="sfx-btn" aria-label="Toggle impact sound">SFX ON</button>
     </div>
     <div id="shareToast" class="share-toast" role="status" aria-live="polite"></div>
@@ -3318,11 +3373,19 @@
 
     const introScreen = document.getElementById("introScreen");
     const enterSim = document.getElementById("enterSim");
+    const disclaimerAck = document.getElementById("disclaimerAck");
     const introCard = introScreen?.querySelector(".intro-card");
     let introLaunching = false;
+    if (enterSim && disclaimerAck) {
+      enterSim.disabled = true;
+      disclaimerAck.addEventListener("change", () => {
+        enterSim.disabled = !disclaimerAck.checked;
+      });
+    }
     if (enterSim && introScreen) {
       enterSim.addEventListener("click", (event) => {
         event.preventDefault();
+        if (disclaimerAck && !disclaimerAck.checked) return;
         if (introLaunching) return;
         introLaunching = true;
         unlockImpactAudio();
