@@ -1013,9 +1013,23 @@
       box-shadow: none;
     }
 
-    .disclaimer-chip {
+    .disclaimer-popover {
+      position: relative;
+      display: inline-flex;
+      pointer-events: auto;
+    }
+
+    .disclaimer-btn {
+      min-width: 86px;
+    }
+
+    .disclaimer-flyout {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: min(320px, 34vw);
       border: 1px solid rgba(148, 163, 184, 0.42);
-      background: rgba(8, 12, 18, 0.88);
+      background: rgba(8, 12, 18, 0.94);
       color: #c6d4ea;
       border-radius: 10px;
       padding: 8px 10px;
@@ -1023,9 +1037,20 @@
       font-size: 10px;
       letter-spacing: 0.07em;
       line-height: 1.35;
-      max-width: 260px;
       text-transform: none;
-      pointer-events: auto;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-4px);
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .disclaimer-popover:hover .disclaimer-flyout,
+    .disclaimer-popover:focus-within .disclaimer-flyout {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
     }
 
 .panel h2 {
@@ -1987,7 +2012,7 @@
         display: contents;
       }
 
-      .disclaimer-chip {
+      .disclaimer-popover {
         display: none;
       }
 
@@ -2366,8 +2391,11 @@
     </div>
     <div class="top-right-controls">
       <button id="shareSim" class="share-btn" aria-label="Share simulator">Share</button>
-      <div class="disclaimer-chip" role="note" aria-label="Simulation disclaimer">
-        This is purely a simulation based on past patterns and assumptions, and is not indicative of future performance or real-world outcomes. Not financial advice.
+      <div class="disclaimer-popover">
+        <button class="share-btn disclaimer-btn" aria-label="Disclaimer">Disclaimer</button>
+        <div class="disclaimer-flyout" role="note" aria-label="Simulation disclaimer">
+          This is purely a simulation based on past patterns and assumptions, and is not indicative of future performance or real-world outcomes. Not financial advice.
+        </div>
       </div>
       <button id="impactSfxToggle" class="sfx-btn" aria-label="Toggle impact sound">SFX ON</button>
     </div>
