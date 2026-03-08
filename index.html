@@ -991,6 +991,31 @@
       color: #9fb1c9;
     }
 
+    .intro-disclaimer-text {
+      margin-top: 8px;
+      max-height: 78px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .intro-disclaimer-text p {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
+    .intro-disclaimer-text p:last-child {
+      margin-bottom: 0;
+    }
+
+    .intro-disclaimer-text::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .intro-disclaimer-text::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.45);
+      border-radius: 999px;
+    }
+
     .intro-disclaimer-ack {
       margin-top: 10px;
       display: flex;
@@ -1042,6 +1067,8 @@
       letter-spacing: 0.07em;
       line-height: 1.35;
       text-transform: none;
+      max-height: 170px;
+      overflow-y: auto;
       opacity: 0;
       visibility: hidden;
       transform: translateY(-4px);
@@ -1055,6 +1082,27 @@
       opacity: 1;
       visibility: visible;
       transform: translateY(0);
+    }
+
+    .global-sim-note {
+      position: fixed;
+      left: 50%;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 4px);
+      transform: translateX(-50%);
+      z-index: 4;
+      font-family: "IBM Plex Sans", sans-serif;
+      font-size: 11px;
+      line-height: 1.35;
+      color: rgba(203, 213, 225, 0.95);
+      background: rgba(8, 12, 18, 0.62);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 8px;
+      padding: 4px 9px;
+      letter-spacing: 0.01em;
+      pointer-events: none;
+      text-align: center;
+      max-width: min(92vw, 760px);
+      backdrop-filter: blur(3px);
     }
 
 .panel h2 {
@@ -2029,6 +2077,12 @@
         margin-top: 10px;
       }
 
+      .global-sim-note {
+        font-size: 10px;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + var(--vv-bottom-offset, 0px) + 6px);
+        max-width: calc(100vw - 14px);
+      }
+
       .share-toast {
         left: auto;
         top: auto;
@@ -2329,7 +2383,12 @@
         <div class="intro-disclaimer">
           <details open>
             <summary>Disclaimer</summary>
-            <p>This is purely a simulation, based on past patterns and assumptions, and is not indicative of future performance or real-world outcomes. Not financial advice.</p>
+            <div class="intro-disclaimer-text">
+              <p>This website is a fictional geopolitical market simulator created for educational and entertainment purposes.</p>
+              <p>The scenarios and asset price impacts shown are hypothetical and based on simplified assumptions and historical patterns. They do not represent real-world forecasts or investment guidance.</p>
+              <p>Nothing on this site constitutes financial advice.</p>
+              <p>By entering, you acknowledge that this simulator is satire and that you will not rely on it for investment or trading decisions.</p>
+            </div>
             <label class="intro-disclaimer-ack">
               <input id="disclaimerAck" type="checkbox" />
               <span>I have read and understand this simulation disclaimer.</span>
@@ -2410,11 +2469,12 @@
       <div class="disclaimer-popover">
         <button class="share-btn disclaimer-btn" aria-label="Disclaimer">Disclaimer</button>
         <div class="disclaimer-flyout" role="note" aria-label="Simulation disclaimer">
-          This is purely a simulation based on past patterns and assumptions, and is not indicative of future performance or real-world outcomes. Not financial advice.
+          This website is a fictional geopolitical market simulator created for educational and entertainment purposes. The scenarios and asset price impacts shown are hypothetical and based on simplified assumptions and historical patterns. They do not represent real-world forecasts or investment guidance. Nothing on this site constitutes financial advice. By entering, you acknowledge that this simulator is satire and that you will not rely on it for investment or trading decisions.
         </div>
       </div>
       <button id="impactSfxToggle" class="sfx-btn" aria-label="Toggle impact sound">SFX ON</button>
     </div>
+    <div class="global-sim-note">Simulation only. Outputs are hypothetical and based on simplified assumptions. Not financial advice.</div>
     <div id="shareToast" class="share-toast" role="status" aria-live="polite"></div>
     <div class="hud-compass">
       <span class="tick">W</span>
