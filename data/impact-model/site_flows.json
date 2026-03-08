@@ -1,0 +1,43 @@
+{
+  "category_defaults": {
+    "chokepoint": { "disruption": 0.92, "channels": { "crude": 1.0, "shipping": 1.0, "risk": 0.8 } },
+    "refinery": { "disruption": 0.78, "channels": { "crude": 0.92, "refining": 1.0, "risk": 0.55 } },
+    "export": { "disruption": 0.82, "channels": { "crude": 1.0, "shipping": 0.62, "risk": 0.55 } },
+    "lng": { "disruption": 0.86, "channels": { "lng": 1.0, "shipping": 0.38, "risk": 0.5 } },
+    "port": { "disruption": 0.66, "channels": { "shipping": 1.0, "risk": 0.42 } },
+    "base": { "disruption": 0.56, "channels": { "risk": 1.0 } },
+    "capital": { "disruption": 0.62, "channels": { "risk": 0.94, "crude": 0.22 } }
+  },
+  "sites": {
+    "hormuz": { "disruption": 1.0, "confidence": "high", "channels": { "crude": 1.0, "shipping": 1.0, "risk": 0.9 } },
+    "bab-el-mandeb": { "disruption": 0.92, "confidence": "high", "channels": { "shipping": 1.0, "crude": 0.68, "risk": 0.76 } },
+    "suez": { "disruption": 0.93, "confidence": "high", "channels": { "shipping": 1.0, "crude": 0.54, "risk": 0.62 } },
+    "ras-tanura": { "disruption": 0.95, "confidence": "high", "channels": { "crude": 1.0, "refining": 0.6, "shipping": 0.36, "risk": 0.63 } },
+    "abqaiq": { "disruption": 0.96, "confidence": "high", "channels": { "refining": 1.0, "crude": 0.9, "risk": 0.64 } },
+    "kharg": { "disruption": 0.76, "confidence": "med", "channels": { "crude": 1.0, "shipping": 0.55, "risk": 0.58 } },
+    "ras-laffan": { "disruption": 0.86, "confidence": "high", "channels": { "lng": 1.0, "shipping": 0.44, "risk": 0.52 } },
+    "fujairah": { "disruption": 0.72, "confidence": "med", "channels": { "shipping": 0.82, "crude": 0.48, "risk": 0.42 } },
+    "ruwais": { "disruption": 0.7, "confidence": "med", "channels": { "refining": 0.8, "crude": 0.64, "risk": 0.38 } },
+    "das-island": { "disruption": 0.66, "confidence": "med", "channels": { "lng": 0.78, "crude": 0.44, "shipping": 0.31 } },
+    "mina-al-ahmadi": { "disruption": 0.71, "confidence": "med", "channels": { "refining": 0.78, "crude": 0.62, "shipping": 0.3 } },
+    "mina-abdullah": { "disruption": 0.69, "confidence": "med", "channels": { "refining": 0.76, "crude": 0.58, "shipping": 0.28 } },
+    "basra-terminal": { "disruption": 0.79, "confidence": "med", "channels": { "crude": 0.92, "shipping": 0.42, "risk": 0.48 } },
+    "rumaila": { "disruption": 0.73, "confidence": "med", "channels": { "crude": 0.88, "risk": 0.4 } },
+    "kirkuk": { "disruption": 0.62, "confidence": "med", "channels": { "crude": 0.68, "shipping": 0.22, "risk": 0.37 } },
+    "jebel-ali": { "disruption": 0.64, "confidence": "med", "channels": { "shipping": 0.95, "risk": 0.42 } },
+    "umm-qasr": { "disruption": 0.58, "confidence": "med", "channels": { "shipping": 0.86, "risk": 0.34 } },
+    "haifa": { "disruption": 0.65, "confidence": "med", "channels": { "refining": 0.62, "shipping": 0.5, "risk": 0.45 } },
+    "ceyhan": { "disruption": 0.68, "confidence": "med", "channels": { "crude": 0.82, "shipping": 0.34, "risk": 0.4 } },
+    "damietta": { "disruption": 0.59, "confidence": "med", "channels": { "lng": 0.72, "shipping": 0.3, "risk": 0.33 } },
+    "idku": { "disruption": 0.59, "confidence": "med", "channels": { "lng": 0.72, "shipping": 0.3, "risk": 0.33 } },
+    "yanbu": { "disruption": 0.72, "confidence": "med", "channels": { "crude": 0.86, "shipping": 0.44, "risk": 0.42 } },
+    "jazan": { "disruption": 0.63, "confidence": "med", "channels": { "refining": 0.74, "crude": 0.46, "risk": 0.34 } },
+    "jubail": { "disruption": 0.67, "confidence": "med", "channels": { "refining": 0.72, "crude": 0.58, "shipping": 0.24 } },
+    "riyadh": { "disruption": 0.58, "confidence": "med", "channels": { "risk": 0.92, "crude": 0.34 } },
+    "tehran": { "disruption": 0.6, "confidence": "med", "channels": { "risk": 1.0, "crude": 0.26 } },
+    "doha": { "disruption": 0.53, "confidence": "low", "channels": { "risk": 0.72, "lng": 0.24 } },
+    "abu-dhabi": { "disruption": 0.55, "confidence": "low", "channels": { "risk": 0.76, "crude": 0.28 } },
+    "kuwait-city": { "disruption": 0.53, "confidence": "low", "channels": { "risk": 0.72, "crude": 0.2 } },
+    "baghdad": { "disruption": 0.56, "confidence": "low", "channels": { "risk": 0.82, "crude": 0.24 } }
+  }
+}

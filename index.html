@@ -2447,6 +2447,12 @@
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     let CALIBRATION = null;
+    let FLOW_BASIS = null;
+    let EXPOSURE_BASIS = null;
+
+    const FLOW_SHOCK_SCALE = 9;
+    const FLOW_IMPACT_BLEND = 0.78;
+    const LEGACY_IMPACT_BLEND = 0.32;
 
     const BASE_DATE = new Date("2026-02-28T00:00:00");
     const now = new Date();
@@ -2802,13 +2808,152 @@
       return severityPenalty * sequencePenalty * chokepointFactor * noveltyPenalty;
     }
 
+    function normalizeChannels(input) {
+      const channels = { crude: 0, refining: 0, lng: 0, shipping: 0, risk: 0 };
+      if (!input) return channels;
+      Object.keys(channels).forEach((key) => {
+        channels[key] = Number(input[key] || 0);
+      });
+      return channels;
+    }
+
+    function addSignedImpact(target, assetId, signed, rationale) {
+      if (!assetId || !Number.isFinite(signed) || Math.abs(signed) < 0.02) return;
+      if (!target.has(assetId)) {
+        target.set(assetId, { signed: 0, rationales: [] });
+      }
+      const entry = target.get(assetId);
+      entry.signed += signed;
+      if (rationale) entry.rationales.push(rationale);
+    }
+
+    function getSiteFlowBasis(event) {
+      const categoryDefault = FLOW_BASIS?.category_defaults?.[event.category] || {};
+      const siteOverride = FLOW_BASIS?.sites?.[event.id] || {};
+      const defaultChannels = normalizeChannels(categoryDefault.channels);
+      const siteChannels = normalizeChannels(siteOverride.channels);
+      const mergedChannels = {};
+      Object.keys(defaultChannels).forEach((key) => {
+        mergedChannels[key] = siteChannels[key] || defaultChannels[key] || 0;
+      });
+      return {
+        channels: mergedChannels,
+        disruption: Number(siteOverride.disruption ?? categoryDefault.disruption ?? 0.55),
+        confidence: siteOverride.confidence || "low"
+      };
+    }
+
+    function inferExposureFromSector(assetKey) {
+      const sector = ASSET_SECTORS[assetKey] || "macro";
+      switch (sector) {
+        case "energy":
+          return { sensitivity: 0.72, bias: 1, channels: { crude: 0.85, refining: 0.32, risk: 0.15 } };
+        case "gas":
+          return { sensitivity: 0.75, bias: 1, channels: { lng: 0.85, risk: 0.2 } };
+        case "lng":
+          return { sensitivity: 0.72, bias: 1, channels: { lng: 0.9, shipping: 0.2 } };
+        case "shipping":
+          return { sensitivity: 0.66, bias: 1, channels: { shipping: 0.95, crude: 0.2 } };
+        case "airlines":
+          return { sensitivity: 0.72, bias: -1, channels: { crude: 0.85, shipping: 0.2, risk: 0.2 } };
+        case "travel":
+          return { sensitivity: 0.52, bias: -1, channels: { risk: 0.72, crude: 0.28 } };
+        case "defense":
+          return { sensitivity: 0.56, bias: 1, channels: { risk: 0.95 } };
+        case "haven":
+          return { sensitivity: 0.66, bias: 1, channels: { risk: 1.0 } };
+        case "macro":
+          return { sensitivity: 0.58, bias: 1, channels: { risk: 0.65 } };
+        default:
+          return { sensitivity: 0.5, bias: 1, channels: { risk: 0.45 } };
+      }
+    }
+
+    function buildFlowDrivenImpacts(event) {
+      const flowBasis = getSiteFlowBasis(event);
+      const channelScales = EXPOSURE_BASIS?.channel_scales || { crude: 1, refining: 0.9, lng: 0.9, shipping: 0.8, risk: 0.7 };
+      const shockMagnitude = FLOW_SHOCK_SCALE * Math.max(0.35, event.weight) * Math.max(0.32, flowBasis.disruption);
+      const impacts = [];
+
+      Object.keys(ASSETS).forEach((assetKey) => {
+        const configured = EXPOSURE_BASIS?.assets?.[assetKey] || inferExposureFromSector(assetKey);
+        const assetChannels = normalizeChannels(configured.channels);
+        const sensitivity = Number(configured.sensitivity ?? 0.5);
+        const bias = Number(configured.bias ?? 1);
+
+        let score = 0;
+        let dominantChannel = "risk";
+        let dominantValue = 0;
+        Object.keys(assetChannels).forEach((channel) => {
+          const channelValue = (flowBasis.channels[channel] || 0) * (assetChannels[channel] || 0) * (channelScales[channel] || 0);
+          score += channelValue;
+          if (Math.abs(channelValue) > dominantValue) {
+            dominantValue = Math.abs(channelValue);
+            dominantChannel = channel;
+          }
+        });
+
+        const signed = score * sensitivity * bias * shockMagnitude;
+        const absSigned = Math.abs(signed);
+        if (absSigned < 0.2) return;
+
+        const base = Math.min(18, Math.max(0.4, absSigned));
+        const direction = signed >= 0 ? 1 : -1;
+        impacts.push({
+          assetId: assetKey,
+          base,
+          direction,
+          rationale: `Flow model: ${dominantChannel} transmission (${flowBasis.confidence} confidence)`
+        });
+      });
+
+      return impacts;
+    }
+
+    function buildEventImpacts(event) {
+      const merged = new Map();
+      const flowDriven = buildFlowDrivenImpacts(event);
+      flowDriven.forEach((impact) => {
+        addSignedImpact(
+          merged,
+          impact.assetId,
+          impact.base * impact.direction * FLOW_IMPACT_BLEND,
+          impact.rationale
+        );
+      });
+
+      (event.assets || []).forEach((impact) => {
+        addSignedImpact(
+          merged,
+          impact.assetId,
+          impact.base * impact.direction * LEGACY_IMPACT_BLEND,
+          `Template model: ${impact.rationale}`
+        );
+      });
+
+      return [...merged.entries()]
+        .map(([assetId, entry]) => {
+          const signed = entry.signed;
+          const direction = signed >= 0 ? 1 : -1;
+          const base = Math.abs(signed);
+          return {
+            assetId,
+            base,
+            direction,
+            rationale: entry.rationales.slice(0, 2).join(" + ")
+          };
+        })
+        .filter((impact) => impact.base >= 0.2);
+    }
+
     function applyEvent(event, model) {
       const damageFactor = 1;
       const multiplier = getEventMultiplier(event, model.depth, model.totalSeverity, model.prevMajor) * damageFactor;
       const horizonMultiplier = getHorizonMultiplier();
       const trace = [];
 
-      event.assets.forEach((impact) => {
+      const eventImpacts = buildEventImpacts(event);
+      eventImpacts.forEach((impact) => {
         const assetKey = impact.assetId;
         const assetHit = model.assetHits[assetKey] || 0;
         const saturationPenalty = 1 / (1 + assetHit * 0.45);
@@ -3826,8 +3971,22 @@
       }
     }
 
+    async function loadImpactBasis() {
+      try {
+        const [flowRes, exposureRes] = await Promise.all([
+          fetch("/data/impact-model/site_flows.json"),
+          fetch("/data/impact-model/ticker_exposure.json")
+        ]);
+        FLOW_BASIS = flowRes.ok ? await flowRes.json() : null;
+        EXPOSURE_BASIS = exposureRes.ok ? await exposureRes.json() : null;
+      } catch (err) {
+        FLOW_BASIS = null;
+        EXPOSURE_BASIS = null;
+      }
+    }
+
     initMap();
-    loadCalibration().finally(() => {
+    Promise.allSettled([loadCalibration(), loadImpactBasis()]).finally(() => {
       recalculate();
       renderAll();
       syncSubtitleWidth();

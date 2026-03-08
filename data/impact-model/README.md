@@ -6,6 +6,8 @@ This folder holds the data sources and calibration outputs used by the simulator
 - `events.json` — historical event list (date, category, tickers)
 - `assets.json` — asset registry and sector mapping
 - `coefficients.json` — generated calibration multipliers (optional)
+- `site_flows.json` — site-level flow/disruption basis by category and location
+- `ticker_exposure.json` — ticker channel exposure weights and sensitivity defaults
 
 ## Generate coefficients
 From repo root:
