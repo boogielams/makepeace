@@ -429,8 +429,8 @@
 
     .impact-bar-inner {
       display: grid;
-      grid-template-columns: auto minmax(0, 1fr) minmax(74px, auto) auto;
-      grid-template-areas: "title grid meta horizon";
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas: "title grid horizon";
       align-items: center;
       gap: clamp(5px, 0.55vw, 10px);
       transform-origin: left top;
@@ -509,6 +509,21 @@
       color: #e2e8f0;
       font-size: var(--ui-font);
       letter-spacing: 0.1em;
+    }
+
+    .history-strike-count {
+      margin: -2px 0 8px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+    }
+
+    .history-strike-count strong {
+      color: #e2e8f0;
+      margin-left: 6px;
+      letter-spacing: 0.04em;
     }
 
     .impact-bar .horizon-toggle {
@@ -2467,6 +2482,7 @@
 
         <aside class="panel hud-panel history-panel" data-state="off">
           <h2>Strike History</h2>
+          <div class="history-strike-count">Strikes <strong id="impactStrikes">0</strong></div>
           <div class="strike-history" id="strikeHistory"></div>
           <div class="strike-actions" style="margin-top: 10px;">
             <button id="clearStrikes" class="primary" style="width: 100%;">Clear All</button>
@@ -2496,10 +2512,6 @@
       <div class="impact-bar-inner">
         <h4>Impact Console</h4>
         <div class="impact-bar-grid" id="impactBarGrid"></div>
-        <div class="impact-meta">
-          <span>Strikes</span>
-          <strong id="impactStrikes">0</strong>
-        </div>
         <div class="horizon-toggle" id="horizonToggle"></div>
       </div>
     </div>
