@@ -633,12 +633,12 @@
 
     .top-right-controls {
       position: fixed;
-      top: calc(env(safe-area-inset-top, 0px) + 12px);
-      right: calc(var(--hud-side) + 64px);
+      top: calc(env(safe-area-inset-top, 0px) + clamp(8px, 0.9vh, 12px));
+      right: calc(var(--hud-side) + clamp(48px, 3.8vw, 64px));
       z-index: 15;
       display: inline-flex;
       align-items: center;
-      gap: 10px;
+      gap: clamp(6px, 0.6vw, 10px);
       pointer-events: auto;
     }
 
@@ -1045,7 +1045,7 @@
     }
 
     .disclaimer-btn {
-      min-width: 86px;
+      min-width: clamp(72px, 5.8vw, 86px);
       border: 1px solid rgba(120, 220, 255, 0.52);
       background: rgba(10, 16, 28, 0.9);
       color: #d6ecff;
@@ -2304,10 +2304,10 @@
       background: linear-gradient(180deg, rgba(35, 72, 155, 0.92), rgba(18, 41, 98, 0.92));
       color: #eaf2ff;
       border-radius: 999px;
-      padding: 10px 18px;
+      padding: clamp(6px, 0.7vh, 10px) clamp(10px, 1vw, 18px);
       font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
-      letter-spacing: 0.12em;
+      font-size: clamp(10px, 0.62vw, 12px);
+      letter-spacing: clamp(0.08em, 0.1vw, 0.12em);
       text-transform: uppercase;
       cursor: pointer;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
@@ -2331,14 +2331,21 @@
       background: rgba(10, 16, 28, 0.9);
       color: #d6ecff;
       border-radius: 999px;
-      padding: 9px 13px;
+      padding: clamp(6px, 0.65vh, 9px) clamp(9px, 0.8vw, 13px);
       font-family: "IBM Plex Mono", monospace;
-      font-size: 12px;
-      letter-spacing: 0.12em;
+      font-size: clamp(10px, 0.62vw, 12px);
+      letter-spacing: clamp(0.08em, 0.1vw, 0.12em);
       text-transform: uppercase;
       cursor: pointer;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
       pointer-events: auto;
+    }
+
+    @media (max-width: 1440px) and (min-width: 981px) {
+      .top-right-controls {
+        top: calc(var(--hud-side) + var(--impact-bar-height) + 6px);
+        right: calc(var(--hud-side) + 8px);
+      }
     }
 
     .sfx-btn.muted {
