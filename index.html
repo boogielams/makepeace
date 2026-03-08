@@ -1801,23 +1801,22 @@
 
     @media (max-width: 1536px) and (min-width: 981px) {
       .impact-bar {
-        grid-template-columns: auto minmax(0, 1fr) minmax(62px, auto);
-        grid-template-areas:
-          "title grid meta"
-          "horizon horizon horizon";
-        align-items: start;
-        row-gap: 6px;
-        min-height: clamp(84px, 10vh, 116px);
+        grid-template-columns: auto minmax(0, 1fr) minmax(62px, auto) auto;
+        grid-template-areas: "title grid meta horizon";
+        align-items: center;
+        min-height: clamp(52px, 6.4vh, 76px);
       }
 
-      .impact-bar .horizon-toggle {
-        justify-self: stretch;
-        width: 100%;
-        gap: 6px;
+      .impact-bar h4 {
+        font-size: 9px;
+        letter-spacing: 0.14em;
       }
 
       .impact-bar .horizon-toggle button {
-        flex: 1 1 0;
+        min-width: 52px;
+        padding: 3px 5px;
+        font-size: 9px;
+        letter-spacing: 0.07em;
       }
 
       .impact-bar-grid {
@@ -1836,7 +1835,7 @@
     @media (max-width: 1366px) and (min-width: 981px) {
       .impact-bar {
         padding: 5px 8px;
-        gap: 5px;
+        gap: 4px;
       }
 
       .impact-bar-grid {
@@ -1855,9 +1854,10 @@
       }
 
       .impact-bar .horizon-toggle button {
-        min-width: 58px;
-        font-size: 10px;
-        padding: 3px 5px;
+        min-width: 46px;
+        font-size: 8px;
+        padding: 2px 4px;
+        letter-spacing: 0.06em;
       }
     }
 
