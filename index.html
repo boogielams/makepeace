@@ -416,11 +416,6 @@
       top: var(--hud-side);
       left: calc(var(--hud-side) + var(--left-width) + 12px);
       right: calc(var(--hud-side) + var(--right-width) + 12px);
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr) minmax(74px, auto) auto;
-      grid-template-areas: "title grid meta horizon";
-      align-items: center;
-      gap: clamp(5px, 0.55vw, 10px);
       padding: 6px 10px;
       border-radius: 16px;
       background: rgba(8, 12, 18, 0.65);
@@ -429,6 +424,18 @@
       backdrop-filter: blur(6px);
       min-height: clamp(58px, 7.2vh, 82px);
       overflow: hidden;
+      --impact-scale: 1;
+    }
+
+    .impact-bar-inner {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) minmax(74px, auto) auto;
+      grid-template-areas: "title grid meta horizon";
+      align-items: center;
+      gap: clamp(5px, 0.55vw, 10px);
+      transform-origin: left top;
+      transform: scale(var(--impact-scale));
+      width: calc(100% / var(--impact-scale));
     }
 
     .impact-bar h4 {
@@ -1800,13 +1807,6 @@
     }
 
     @media (max-width: 1536px) and (min-width: 981px) {
-      .impact-bar {
-        grid-template-columns: auto minmax(0, 1fr) minmax(62px, auto) auto;
-        grid-template-areas: "title grid meta horizon";
-        align-items: center;
-        min-height: clamp(52px, 6.4vh, 76px);
-      }
-
       .impact-bar h4 {
         font-size: 9px;
         letter-spacing: 0.14em;
@@ -1835,7 +1835,6 @@
     @media (max-width: 1366px) and (min-width: 981px) {
       .impact-bar {
         padding: 5px 8px;
-        gap: 4px;
       }
 
       .impact-bar-grid {
@@ -1967,11 +1966,17 @@
         right: 8px;
         top: auto;
         bottom: calc(env(safe-area-inset-bottom, 0px) + var(--vv-bottom-offset, 0px));
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-areas: "grid";
         border-radius: 12px;
         padding: 7px 8px;
         z-index: 13;
+      }
+
+      .impact-bar-inner {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "grid";
+        transform: none;
+        width: 100%;
+        gap: 0;
       }
 
       .impact-bar h4 {
@@ -2486,13 +2491,15 @@
       </div>
     </main>
     <div class="impact-bar">
-      <h4>Impact Console</h4>
-      <div class="impact-bar-grid" id="impactBarGrid"></div>
-      <div class="impact-meta">
-        <span>Strikes</span>
-        <strong id="impactStrikes">0</strong>
+      <div class="impact-bar-inner">
+        <h4>Impact Console</h4>
+        <div class="impact-bar-grid" id="impactBarGrid"></div>
+        <div class="impact-meta">
+          <span>Strikes</span>
+          <strong id="impactStrikes">0</strong>
+        </div>
+        <div class="horizon-toggle" id="horizonToggle"></div>
       </div>
-      <div class="horizon-toggle" id="horizonToggle"></div>
     </div>
     <div class="hud-utility-lane">
       <div class="hud-utility-left"></div>
@@ -3277,6 +3284,7 @@
       if (strikeCountEl) {
         strikeCountEl.textContent = String(state.stack.length);
       }
+      syncImpactBarScale();
     }
 
     function renderAssets() {
@@ -4055,6 +4063,24 @@
       root.style.setProperty("--mobile-impact-reserve", `${reserve}px`);
     }
 
+    function syncImpactBarScale() {
+      const impactBar = document.querySelector(".impact-bar");
+      const impactInner = document.querySelector(".impact-bar-inner");
+      if (!impactBar || !impactInner) return;
+
+      const isMobile = window.matchMedia("(max-width: 980px)").matches;
+      if (isMobile) {
+        impactBar.style.setProperty("--impact-scale", "1");
+        return;
+      }
+
+      impactBar.style.setProperty("--impact-scale", "1");
+      const availableWidth = Math.max(1, impactBar.clientWidth - 2);
+      const requiredWidth = Math.max(1, Math.ceil(impactInner.scrollWidth));
+      const scale = Math.max(0.7, Math.min(1, availableWidth / requiredWidth));
+      impactBar.style.setProperty("--impact-scale", scale.toFixed(3));
+    }
+
     async function loadCalibration() {
       try {
         const res = await fetch("/data/impact-model/coefficients.json");
@@ -4087,15 +4113,18 @@
       recalculate();
       renderAll();
       syncSubtitleWidth();
+      syncImpactBarScale();
       syncMobileImpactBarOffset();
     });
     window.addEventListener("load", () => {
       syncSubtitleWidth();
+      syncImpactBarScale();
       syncMobileImpactBarOffset();
     });
     window.addEventListener("resize", () => {
       syncSubtitleWidth();
       renderAggregate();
+      syncImpactBarScale();
       syncMobileImpactBarOffset();
     });
     if (window.visualViewport) {
