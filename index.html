@@ -2343,8 +2343,18 @@
 
     @media (max-width: 1440px) and (min-width: 981px) {
       .top-right-controls {
-        top: calc(var(--hud-side) + var(--impact-bar-height) + 6px);
-        right: calc(var(--hud-side) + 8px);
+        top: calc(env(safe-area-inset-top, 0px) + 8px);
+        right: calc(var(--hud-side) + 56px);
+        gap: 4px;
+      }
+
+      .top-right-controls .share-btn,
+      .top-right-controls .disclaimer-btn,
+      .top-right-controls .sfx-btn {
+        min-width: 68px;
+        padding: 5px 9px;
+        font-size: 10px;
+        letter-spacing: 0.08em;
       }
     }
 
