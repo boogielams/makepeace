@@ -1090,7 +1090,7 @@
       left: 50%;
       bottom: calc(env(safe-area-inset-bottom, 0px) + 4px);
       transform: translateX(-50%);
-      z-index: 4;
+      z-index: 12;
       font-family: "IBM Plex Sans", sans-serif;
       font-size: 11px;
       line-height: 1.35;
@@ -1100,10 +1100,74 @@
       border-radius: 8px;
       padding: 4px 9px;
       letter-spacing: 0.01em;
-      pointer-events: none;
+      pointer-events: auto;
       text-align: center;
       max-width: min(92vw, 760px);
       backdrop-filter: blur(3px);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .methodology-popover {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .methodology-label {
+      color: rgba(203, 213, 225, 0.95);
+    }
+
+    .methodology-trigger {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      background: rgba(8, 12, 18, 0.88);
+      color: #dbeafe;
+      font-size: 10px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: help;
+      padding: 0;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .methodology-flyout {
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 8px);
+      transform: translateX(-50%) translateY(4px);
+      width: min(560px, 92vw);
+      max-height: min(42vh, 300px);
+      overflow-y: auto;
+      text-align: left;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.38);
+      background: rgba(8, 12, 18, 0.94);
+      color: #c6d4ea;
+      font-size: 10px;
+      line-height: 1.45;
+      letter-spacing: 0.03em;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+      z-index: 20;
+    }
+
+    .methodology-popover:hover .methodology-flyout,
+    .methodology-popover:focus-within .methodology-flyout {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
     }
 
 .panel h2 {
@@ -2079,6 +2143,11 @@
         max-width: calc(100vw - 14px);
       }
 
+      .methodology-flyout {
+        width: min(92vw, 440px);
+        max-height: min(36vh, 220px);
+      }
+
       .share-toast {
         left: auto;
         top: auto;
@@ -2485,7 +2554,16 @@
       </div>
       <button id="impactSfxToggle" class="sfx-btn" aria-label="Toggle impact sound">SFX ON</button>
     </div>
-    <div class="global-sim-note">Simulation only. Outputs are hypothetical and based on simplified assumptions. Not financial advice.</div>
+    <div class="global-sim-note">
+      <span>Simulation only. Outputs are hypothetical and based on simplified assumptions. Not financial advice.</span>
+      <span class="methodology-popover">
+        <span class="methodology-label">Methodology:</span>
+        <button class="methodology-trigger" aria-label="View methodology">?</button>
+        <div class="methodology-flyout" role="note" aria-label="Simulation methodology">
+          Inputs combine site category, site weight, and flow-channel disruption assumptions from local model files. Each strike maps to asset exposures via crude/refining/LNG/shipping/risk channels, then blends flow-driven contributions with legacy template mappings for stability. Sequential strikes apply sequence and severity penalties, while adaptive saturation dampens repetitive hits per asset. A systemic escalation layer increases sensitivity for crisis-prone classes (oil, volatility, shipping, airlines downside, defense, and havens) when core-node damage accumulates. Optional calibration multipliers can further scale sector, asset, and category effects when coefficients are present.
+        </div>
+      </span>
+    </div>
     <div id="shareToast" class="share-toast" role="status" aria-live="polite"></div>
     <div class="hud-compass">
       <span class="tick">W</span>
