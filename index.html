@@ -1800,6 +1800,26 @@
     }
 
     @media (max-width: 1536px) and (min-width: 981px) {
+      .impact-bar {
+        grid-template-columns: auto minmax(0, 1fr) minmax(62px, auto);
+        grid-template-areas:
+          "title grid meta"
+          "horizon horizon horizon";
+        align-items: start;
+        row-gap: 6px;
+        min-height: clamp(84px, 10vh, 116px);
+      }
+
+      .impact-bar .horizon-toggle {
+        justify-self: stretch;
+        width: 100%;
+        gap: 6px;
+      }
+
+      .impact-bar .horizon-toggle button {
+        flex: 1 1 0;
+      }
+
       .impact-bar-grid {
         grid-template-columns: repeat(5, minmax(46px, 1fr));
       }
