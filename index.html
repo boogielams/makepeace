@@ -2524,6 +2524,7 @@
     const FLOW_SHOCK_SCALE = 9;
     const FLOW_IMPACT_BLEND = 0.78;
     const LEGACY_IMPACT_BLEND = 0.32;
+    const SYSTEMIC_ESCALATION = true;
 
     const BASE_DATE = new Date("2026-02-28T00:00:00");
     const now = new Date();
@@ -2846,11 +2847,74 @@
     const DEFAULT_SITE = "hormuz";
 
     function getEventMultiplier(event, index, totalSeverity, prevMajor) {
-      const severityPenalty = 1 / (1 + totalSeverity * 0.28);
-      const sequencePenalty = Math.max(0.62, 1 - index * 0.07);
+      const severityPenalty = 1 / (1 + totalSeverity * 0.18);
+      const sequencePenalty = Math.max(0.72, 1 - index * 0.05);
       const chokepointFactor = event.chokepoint ? (index === 0 ? 1.2 : 0.85) : 1;
       const noveltyPenalty = prevMajor && event.chokepoint ? 0.88 : 1;
       return severityPenalty * sequencePenalty * chokepointFactor * noveltyPenalty;
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function updateSystemicStateForEvent(event, model) {
+      const isOilCore = event.chokepoint || event.category === "export" || event.category === "refinery" || event.category === "lng";
+      if (isOilCore) model.oilCoreDamage += event.weight;
+      if (event.chokepoint || event.category === "port") model.shippingStress += event.weight;
+      if (event.chokepoint || event.category === "base" || event.category === "capital") model.geoRiskDamage += event.weight;
+    }
+
+    function getSystemicEscalationMultiplier(assetKey, sector, signed, model) {
+      if (!SYSTEMIC_ESCALATION) return 1;
+      const oilStress = clamp((model.oilCoreDamage - 1.7) / 3.5, 0, 2.2);
+      const shippingStress = clamp((model.shippingStress - 1.2) / 3.2, 0, 2.0);
+      const geoStress = clamp((model.geoRiskDamage - 1.0) / 2.8, 0, 2.0);
+
+      const energyAssets = new Set(["brent", "wti", "xle", "xop", "oih", "xom", "cvx", "cop", "oxy", "slb"]);
+      const shippingAssets = new Set(["zim", "fro", "dpw", "iyt"]);
+      const airlineAssets = new Set(["jets", "dal", "ual", "aal"]);
+      const defenseAssets = new Set(["ita", "xar", "lmt", "rtx", "noc"]);
+      const havenAssets = new Set(["gold", "gld", "uup"]);
+
+      if (energyAssets.has(assetKey) || sector === "energy") {
+        return clamp(1 + oilStress * 0.72 + shippingStress * 0.18, 1, 2.6);
+      }
+      if (assetKey === "vix") {
+        return clamp(1 + geoStress * 0.82 + oilStress * 0.25, 1, 2.8);
+      }
+      if (shippingAssets.has(assetKey) || sector === "shipping" || sector === "transport") {
+        return clamp(1 + shippingStress * 0.74 + oilStress * 0.2, 1, 2.5);
+      }
+      if (airlineAssets.has(assetKey) || sector === "airlines") {
+        if (signed < 0) return clamp(1 + oilStress * 0.62 + shippingStress * 0.24, 1, 2.35);
+        return 1;
+      }
+      if (defenseAssets.has(assetKey) || sector === "defense") {
+        return clamp(1 + geoStress * 0.56, 1, 2.2);
+      }
+      if (havenAssets.has(assetKey) || sector === "haven") {
+        return clamp(1 + geoStress * 0.42 + oilStress * 0.18, 1, 2.0);
+      }
+      if (assetKey === "spx") {
+        if (signed < 0) return clamp(1 + geoStress * 0.36 + oilStress * 0.2, 1, 1.8);
+        return 1;
+      }
+      return 1;
+    }
+
+    function getAdaptiveSaturationFactor(assetKey, sector, model) {
+      let factor = 0.45;
+      if (sector === "energy" || assetKey === "brent" || assetKey === "wti") {
+        factor = 0.26;
+      } else if (sector === "shipping" || sector === "airlines" || sector === "defense" || sector === "haven" || assetKey === "vix") {
+        factor = 0.32;
+      }
+      if (SYSTEMIC_ESCALATION) {
+        const relief = clamp((model.oilCoreDamage + model.shippingStress + model.geoRiskDamage) * 0.04, 0, 0.14);
+        factor = Math.max(0.16, factor - relief);
+      }
+      return factor;
     }
 
     function normalizeChannels(input) {
@@ -2996,18 +3060,21 @@
       const multiplier = getEventMultiplier(event, model.depth, model.totalSeverity, model.prevMajor) * damageFactor;
       const horizonMultiplier = 1;
       const trace = [];
+      updateSystemicStateForEvent(event, model);
 
       const eventImpacts = buildEventImpacts(event);
       eventImpacts.forEach((impact) => {
         const assetKey = impact.assetId;
         const assetHit = model.assetHits[assetKey] || 0;
-        const saturationPenalty = 1 / (1 + assetHit * 0.45);
         const signed = impact.base * impact.direction;
         const sector = ASSET_SECTORS[assetKey] || "macro";
+        const saturationFactor = getAdaptiveSaturationFactor(assetKey, sector, model);
+        const saturationPenalty = 1 / (1 + assetHit * saturationFactor);
+        const escalationMultiplier = getSystemicEscalationMultiplier(assetKey, sector, signed, model);
         const sectorMultiplier = CALIBRATION?.sector_multipliers?.[sector] ?? 1;
         const assetMultiplier = CALIBRATION?.asset_multipliers?.[assetKey] ?? 1;
         const categoryMultiplier = CALIBRATION?.category_multipliers?.[event.category] ?? 1;
-        const contribution = signed * multiplier * saturationPenalty * horizonMultiplier * sectorMultiplier * assetMultiplier * categoryMultiplier;
+        const contribution = signed * multiplier * saturationPenalty * escalationMultiplier * horizonMultiplier * sectorMultiplier * assetMultiplier * categoryMultiplier;
 
         model.assets[assetKey] = (model.assets[assetKey] || 0) + contribution;
         model.assetHits[assetKey] = assetHit + 1;
@@ -3080,6 +3147,9 @@
         totalSeverity: 0,
         prevMajor: false,
         majorCount: 0,
+        oilCoreDamage: 0,
+        shippingStress: 0,
+        geoRiskDamage: 0,
         impactLog: []
       };
 
